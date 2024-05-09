@@ -1,0 +1,82 @@
+﻿@namespace Mihcelle.Hwavmvid.Modules.Roulette
+@inherits RouletteComponentBase
+
+@using System
+@using System.Linq
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Mihcelle.Hwavmvid.Modules.Roulette.Shared.Items
+
+<div class="p-1 p-sm-2 text-center bg-transparent">
+
+    @if (RouletteService.loading)
+    {
+        <div class="mx-auto p-0 " style="width: 420px">
+            <div class="d-flex align-items-center justify-content-center w-100 p-3 bg-white text-dark" style="width: @(RouletteService.containerwidth)px; height: @(RouletteService.containerheight)px;">
+                <img src="/roulette/rouletteloading.gif" />
+            </div>
+        </div>
+    }
+
+    @if (!RouletteService.loading)
+    {
+        <div class="mx-auto p-0" style="width: 420px">
+
+            <div class="roulette-map" style="width: @(RouletteService.containerwidth)px; height: @(RouletteService.containerheight)px;">
+
+                @foreach (var row in RouletteService.Map.Rows)
+                {
+
+                    <div class="row p-0 g-0">
+
+                        @foreach (var col in RouletteService.Map.Columns.Where(item => item.RowId == row.RowId))
+                        {                            
+
+                            <div class="col position-relative p-0" style="width: @(RouletteService.griditemwidth)px; height: @(RouletteService.griditemheight)px;">
+                                
+                                @foreach (var item in col.Items)
+                                {
+                                    <div class="position-absolute @(item.GetType() == typeof(RouletteCarpet) ? "w-100 h-100" : string.Empty)" style="z-index: @(item.ZIndex); background-color: @(item.BackgroundColor); transform: rotate(@(item.Rotation)deg); top: 0px; left: 0px;">
+
+                                        @if (item.GetType() == typeof(RouletteBall))
+                                        {
+                                            <img src="/roulette/@(string.Concat(item.ImageUrl, item.ImageUrlExtension))" width="@item.ImageWidth" height="@item.ImageHeight" />
+                                        }
+
+                                        else if (item.GetType() == typeof(RouletteNumber))
+                                        {
+                                            <small style="color: white; font-size: 8px;">@item.Value</small>
+                                        }
+
+                                        else if (item.GetType() == typeof(RouletteNumbers))
+                                        {
+                                            <img src="/roulette/@(string.Concat(item.ImageUrl, item.ImageUrlExtension))" width="@item.ImageWidth" height="@item.ImageHeight" />
+                                        }
+
+                                        else if (item.GetType() == typeof(RouletteBallRaceway))
+                                        {
+                                            <img src="/roulette/@(string.Concat(item.ImageUrl, item.ImageUrlExtension))" width="@item.ImageWidth" height="@item.ImageHeight" />
+                                        }
+
+                                        else if (item.GetType() == typeof(RouletteCarpet)) {}
+
+                                    </div>
+                                }
+
+                            </div>                            
+
+                        }
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+    }
+
+</div>
+
+@code {
+
+}

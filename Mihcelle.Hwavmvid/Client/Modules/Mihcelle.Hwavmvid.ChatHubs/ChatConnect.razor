@@ -1,0 +1,58 @@
+﻿@namespace Mihcelle.Hwavmvid.Modules.ChatHubs
+@inherits ComponentBase
+
+@inject ChatHubService ChatHubService
+@inject AlertsService AlertsService
+
+@using Mihcelle.Hwavmvid.Client.Modules
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.SignalR.Client
+@using Mihcelle.Hwavmvid.Modules.ChatHubs.Services
+@using Mihcelle.Hwavmvid.Alerts
+
+<AuthorizeView>
+    <Authorizing>
+
+        <text>loading..</text>
+
+    </Authorizing>
+    <Authorized>
+
+        @if (this.ChatHubService != null && this.ChatHubService.Connection != null && ChatHubService.Connection.State != HubConnectionState.Connected)
+        {
+            <div class="p-2 p-xl-4 bg-white w-100 mb-0 mb-sm-2 border border-primary">
+                <div class="p-0 p-sm-1">
+                    <button type="button" class="btn btn-sm btn-link bg-white border border-light" @onclick="@(async () => await TryConnect())">Click here to connect to videochat</button>
+                </div>
+            </div>
+        }
+
+    </Authorized>
+    <NotAuthorized>
+
+        <div class="p-2 p-xl-4 bg-white w-100 mb-2 border border-primary">
+            <div class="p-0 p-sm-1">
+                <input type="text" id="guestUsernameInput-@this.ChatHubService.ModuleId" class="form-control" @bind-value="@this.GuestUsername" placeholder="Choose your desired guestname" style="max-width: 320px;" />
+            </div>
+            <div class="p-0 p-sm-1">
+                <button type="button" class="btn btn-sm btn-link bg-white border border-light" @onclick="@(async () => await TryConnect())">Establish new connection</button>
+            </div>
+        </div>
+
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+    [Parameter] public string GuestUsername { get; set; }
+
+    public async Task TryConnect()
+    {
+        var connected = await this.ChatHubService.ConnectToChat(this.GuestUsername, this.ChatHubService.ModuleId);
+        if(connected)
+        {
+            this.GuestUsername = string.Empty;
+        }
+    }
+
+}

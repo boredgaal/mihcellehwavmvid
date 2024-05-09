@@ -1,0 +1,141 @@
+﻿@inherits Modulebase
+@namespace Mihcelle.Hwavmvid.Modules.Mediafiles
+
+@using System.Linq
+@using System.Collections.Generic
+@using Mihcelle.Hwavmvid.Client.Pages
+@using Mihcelle.Hwavmvid.Shared.Models
+@using Mihcelle.Hwavmvid.Client.Modules
+@using Mihcelle.Hwavmvid.Fileupload
+@using Mihcelle.Hwavmvid.Pager
+@using Hwavmvid.Alerts
+
+@inject Applicationprovider applicationprovider
+@inject Pagerservice<Applicationmediafile> pagerservice
+
+
+<AuthorizeView>
+    <Authorized>
+
+        <div class="container">
+            <div class="row align-items-center my-2">
+
+                <div class="col-lg-12">
+                    <div class="bg-light">
+
+                        <FileUploadComponent ApiUrl="api/mediafile/images" InputFileId="@this.Mediafileinputfieldid" DropzoneElementId="@this.Mediafiledropzoneelementid"></FileUploadComponent>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="medialibrary">
+
+            <div class="container g-0">
+
+                @{
+                    var getItemsApiUrl = string.Concat(this.navigationmanager?.BaseUri, "api/mediafile");
+                }
+
+                @if (this.applicationprovider?._contextsite != null)
+                {
+
+                    <PagerComponent ApiQueryId="@this.applicationprovider?._contextsite?.Id" HubConnectionId="@string.Empty" ElementId="Mihcellehwavmvidmedialibrary" GetItemsApiUrl="@getItemsApiUrl" ContextPageItems="@this.mediaitems" Context="contextitem" ItemsPerPage="24" TItemGeneric="@Applicationmediafile" Class="row g-2 align-items-center bg-primary" Scrolling="@false">
+                        <PagerItem>
+
+                            <div class="col-lg-2" @onclick="() => copytoclipboard(contextitem)">
+
+                                <img class="img-fluid" src="@(string.Concat(this.navigationmanager?.BaseUri, "/medialibrary/", contextitem.Filename))" />
+
+                            </div>
+
+
+                        </PagerItem>
+                    </PagerComponent>
+
+                }
+            </div>
+
+        </div>
+
+    </Authorized>
+    <NotAuthorized>
+
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+
+
+    [Parameter] public Moduleservice<Modulepreferences> Moduleparams { get; set; }
+
+    [Inject] public IJSRuntime jsruntime { get; set; }
+    [Inject] public AlertsService alertsservice { get; set; }
+
+    public string Mediafiledropzoneelementid { get; set; } = "mediafile_dropzone_element_id";
+    public string Mediafileinputfieldid { get; set; } = "mediafile_input_field_id";
+
+    public List<Applicationmediafile> mediaitems { get; set; } = new List<Applicationmediafile>();
+
+    protected async Task copytoclipboard(Applicationmediafile item)
+    {
+        var url = this.navigationmanager.BaseUri + "/medialibrary/" + item.Filename;
+        await this.jsruntime.InvokeVoidAsync("jsfunctions.copytoclipboard", url);
+        this.alertsservice.NewAlert("copied img url to clipboard: \n" + url);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.pagerservice.OnRetrievedItems += RetrievedItems;
+        this.pagerservice.OnRemoveItem += RemoveItem;
+        this.pagerservice.OnError += Error;
+
+        await base.OnInitializedAsync();
+    }
+
+    public void RetrievedItems(List<Applicationmediafile> obj, string apiQueryId)
+    {
+        if (apiQueryId.ToString() == this.applicationprovider?._contextsite?.Id)
+        {
+            this.mediaitems.AddRange(obj);
+            this.StateHasChanged();
+        }
+    }
+
+    public async void RemoveItem(Pagerevent<Applicationmediafile> obj)
+    {
+        if (obj.ApiQueryId.ToString() == this.applicationprovider?._contextsite?.Id)
+        {
+            try
+            {
+                await this.httpclient.DeleteAsync(string.Concat("api/mediafile/", obj.Item.Id));
+
+                this.mediaitems.Remove(obj.Item);
+                this.StateHasChanged();
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
+        }
+    }
+
+    public void Error(Exception exception, string apiQueryId)
+    {
+        if (this.applicationprovider?._contextsite?.Id == apiQueryId.ToString())
+        {
+            Console.Write(exception.Message);
+        }
+    }
+
+    public void Dispose()
+    {
+        this.pagerservice.OnRetrievedItems -= RetrievedItems;
+        this.pagerservice.OnRemoveItem -= RemoveItem;
+        this.pagerservice.OnError -= Error;
+    }
+
+}

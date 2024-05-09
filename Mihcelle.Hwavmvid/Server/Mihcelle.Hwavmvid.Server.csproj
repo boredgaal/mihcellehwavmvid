@@ -1,0 +1,121 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+	<Configurations>Debug;Release</Configurations>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+	<authors>hwavmvid_tunstall</authors>
+	<Company>hwavmvid technologies</Company>
+	<copyright>hwavmvid corp.</copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Hubs\**" />
+    <Content Remove="Hubs\**" />
+    <EmbeddedResource Remove="Hubs\**" />
+    <None Remove="Hubs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Modules\Mihcelle.Hwavmvid.Modules.ChatHubs\bk.png" />
+    <None Remove="Modules\Mihcelle.Hwavmvid.Modules.ChatHubs\chat-room-image-deprecated.png" />
+    <None Remove="Modules\Mihcelle.Hwavmvid.Modules.ChatHubs\chat-room-image.png" />
+    <None Remove="Modules\Mihcelle.Hwavmvid.Modules.ChatHubs\cl500.png" />
+    <None Remove="Modules\Mihcelle.Hwavmvid.Modules.ChatHubs\hub-exception.png" />
+    <None Remove="wwwroot\modu\mhcc\images\rooms\placeholder.png" />
+    <None Remove="wwwroot\modu\mhcc\images\uploads\placeholder.png" />
+    <None Remove="Modules\Mihcelle.Hwavmvid.Modules.ChatHubs\loading-flower.gif" />
+    <None Remove="Modules\Mihcelle.Hwavmvid.Modules.ChatHubs\loading.gif" />
+    <None Remove="Modules\Mihcelle.Hwavmvid.Modules.ChatHubs\macdonalds.png" />
+    <None Remove="wwwroot\modu\mhcc\temp\placeholder.png" />
+    <None Remove="wwwroot\modu\mhcc\videos\images\rooms\placeholder.png" />
+    <None Remove="wwwroot\modu\mhcc\videos\images\uploads\placeholder.png" />
+    <None Remove="wwwroot\modu\mhcc\videos\placeholder.png" />
+    <None Remove="wwwroot\modu\mhcc\videos\temp\placeholder.png" />
+    <None Remove="Modules\Mihcelle.Hwavmvid.Modules.ChatHubs\wasmchatlogo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="7.0.2" />
+  </ItemGroup>
+
+	<ItemGroup>
+
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="7.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="7.0.2" />
+		
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.2" />
+
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client.Core" Version="7.0.2" />
+		
+		<PackageReference Include="System.Composition" Version="7.0.0" />
+		<PackageReference Include="System.Drawing.Common" Version="5.0.2" />
+		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+		<PackageReference Include="FFMpegCore" Version="4.7.0" />
+		<PackageReference Include="Instances" Version="1.6.1" />
+		
+	</ItemGroup>
+
+	<ItemGroup>
+		
+		<ProjectReference Include="..\..\BlazorDraggableList\BlazorDraggableList.csproj" />
+		
+		<ProjectReference Include="..\..\BlazorDropdown\BlazorDropdown.csproj" />
+		
+		<ProjectReference Include="..\..\BlazorDynamicLayout\BlazorDynamicLayout.csproj" />
+		
+		<ProjectReference Include="..\..\BlazorSelect\BlazorSelect.csproj" />
+		
+		<ProjectReference Include="..\..\BlazorSlider\BlazorSlider.csproj" />
+		
+		<ProjectReference Include="..\..\BlazorTabMenu\BlazorTabMenu.csproj" />
+		
+		<ProjectReference Include="..\..\BlazorTabs\BlazorTabs.csproj" />
+		
+		<ProjectReference Include="..\..\Hwavmvid.Accordion\Hwavmvid.Accordion.csproj" />
+		
+		<ProjectReference Include="..\..\Hwavmvid.Alerts\Hwavmvid.Alerts.csproj" />
+		
+		<ProjectReference Include="..\..\Hwavmvid.BrowserResize\Hwavmvid.BrowserResize.csproj" />
+		
+		<ProjectReference Include="..\..\Hwavmvid.ColorPicker\Hwavmvid.ColorPicker.csproj" />
+		
+		<ProjectReference Include="..\..\Hwavmvid.Devices\Hwavmvid.Devices.csproj" />
+		
+		<ProjectReference Include="..\..\Hwavmvid.Download\Hwavmvid.Download.csproj" />
+		
+		<ProjectReference Include="..\..\Hwavmvid.Jsapigeolocation\Hwavmvid.Jsapigeolocation.csproj" />
+		
+		<ProjectReference Include="..\..\Hwavmvid.Jsapinotifications\Hwavmvid.Jsapinotifications.csproj" />
+		
+		<ProjectReference Include="..\..\Hwavmvid.Motiondetection\Hwavmvid.Motiondetection.csproj" />
+		
+		<ProjectReference Include="..\..\Hwavmvid.Notifications\Hwavmvid.Notifications.csproj" />
+		
+		<ProjectReference Include="..\..\Hwavmvid.Stringpics\Hwavmvid.Stringpics.csproj" />
+		
+		<ProjectReference Include="..\..\Hwavmvid.VideoPlayer\Hwavmvid.VideoPlayer.csproj" />
+		
+		<ProjectReference Include="..\..\Hwavmvid.Video\Hwavmvid.Video.csproj" />
+		<ProjectReference Include="..\..\Mihcelle.Hwavmvid.Cookies\Mihcelle.Hwavmvid.Cookies.csproj" />
+		<ProjectReference Include="..\..\Mihcelle.Hwavmvid.Fileupload\Mihcelle.Hwavmvid.Fileupload.csproj" />
+		<ProjectReference Include="..\..\Mihcelle.Hwavmvid.Modal\Mihcelle.Hwavmvid.Modal.csproj" />
+		<ProjectReference Include="..\..\Mihcelle.Hwavmvid.Pager\Mihcelle.Hwavmvid.Pager.csproj" />
+		<ProjectReference Include="..\..\Shared\Oqtane.ChatHubs.Shared.csproj" />
+		<ProjectReference Include="..\Client\Mihcelle.Hwavmvid.Client.csproj" />
+		<ProjectReference Include="..\Shared\Mihcelle.Hwavmvid.Shared.csproj" />
+		
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="wwwroot\medialibrary\" />
+	</ItemGroup>
+
+</Project>

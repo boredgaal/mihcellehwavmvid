@@ -1,0 +1,38 @@
+﻿@page "/{_contextpageurlpath?}"
+@inherits Indexbase
+
+
+@if (this.applicationprovider?._contextpage != null)
+{
+    <div class="py-3">
+
+        <div class="jumbotron jumbotron-fluid">
+            <div class="container-fluid">
+
+                <!--<h1 class="display-4 lead py-1" style="font-weight: 400 !important;">Webpage @this.applicationprovider?._contextpage.Name</h1>-->
+                <Mihcelle.Hwavmvid.Client.Container.Container></Mihcelle.Hwavmvid.Client.Container.Container>
+
+            </div>
+        </div>
+
+    </div>
+}
+
+@if (this.applicationprovider?._contextpage == null)
+{
+    <div class="py-3">
+
+        <div class="jumbotron jumbotron-fluid">
+            <div class="container">
+
+                <h1 class="display-4 py-1" style="font-weight: 400 !important;">Webpage not found 404</h1>
+
+            </div>
+        </div>
+
+    </div>
+}
+
+@code {
+
+}

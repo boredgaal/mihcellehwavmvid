@@ -1,0 +1,198 @@
+﻿@inherits Modulebase
+@namespace Mihcelle.Hwavmvid.Modules.Pagesettings
+
+@using System.Linq
+@using System.Collections.Generic
+@using Mihcelle.Hwavmvid.Client.Pages
+@using Mihcelle.Hwavmvid.Pager
+@using Mihcelle.Hwavmvid.Shared.Models
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Mihcelle.Hwavmvid.Client.Modules
+
+@inject IHttpClientFactory ihttpclientfactory
+@inject NavigationManager navigationmanager
+@inject Pagerservice<Applicationpage> pagerservice
+@inject Applicationprovider? applicationprovider
+
+<AuthorizeView>
+    <Authorized>
+
+        <div class="container">
+            <div class="row align-items-center my-2">
+
+                <div class="col-lg-4 py-2">
+                    <div class="text-center">
+                        <strong>Context page</strong>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 py-2">
+
+                    <div class="input-group">
+                        <span class="input-group-text" id="contextpage">Pagename</span>
+                        <input type="text" @bind-value="this.applicationprovider._contextpage.Name" class="form-control" aria-label="contextpage" aria-describedby="contextpage">
+                    </div>
+
+                </div>
+
+                <div class="col-lg-2 py-2">
+
+                    <button type="button" @onclick="async () => await this.Updatepage()" class="btn btn-sm btn-primary">Send data</button>
+
+                </div>
+
+                <div class="col-lg-12 py-2">
+                    
+                    <div class="container">
+
+                    @{
+                        var getItemsApiUrl = string.Concat(this.navigationmanager?.BaseUri, "api/page");
+                    }
+
+                    @if (this.applicationprovider?._contextsite != null)
+                    {
+
+                        <PagerComponent ApiQueryId="@this.applicationprovider?._contextsite?.Id" HubConnectionId="@string.Empty" ElementId="Mihcellehwavmvidpages" GetItemsApiUrl="@getItemsApiUrl" ContextPageItems="@this.apppages" Context="contextitem" ItemsPerPage="2" TItemGeneric="@Applicationpage" Class="py-sm-3" Scrolling="@false">
+                            <PagerItem>
+
+                                <div class="row" style="background-color: lightgoldenrodyellow; border-bottom: 1px solid #f1f1f1;">
+                                    <div class="col-sm-8">
+                                        <button type="button" class="btn btn-sm btn-link">@contextitem.Name</button>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <button type="button" @onclick="@(() => this.pagerservice.RemoveItem(contextitem, this.applicationprovider?._contextsite?.Id))" class="btn btn-sm btn-danger">
+                                            <span aria-hidden="true" style="font-size: 1.4rem; line-height: 0;">&times;</span> Delete item
+                                        </button>
+                                    </div>
+                                </div>
+
+                            </PagerItem>
+                        </PagerComponent>
+
+                    }
+
+                    </div>
+
+                </div>
+
+                <div class="col-lg-12 py-2">
+
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="new_page_name">@navigationmanager.BaseUri</span>
+                        <input type="text" @bind-value="this.newpagename" class="form-control" placeholder="no special chars except of underscore dot and minus" aria-label="new_page_name" aria-describedby="new_page_name">
+                    </div>
+
+                    <button type="button" @onclick="async () => await this.Createnewpage()" class="btn btn-sm btn-primary">Create new page</button>
+
+                </div>
+
+            </div>
+        </div>
+
+    </Authorized>
+</AuthorizeView>
+
+
+@code {
+
+
+    [Parameter] public Moduleservice<Modulepreferences> Moduleparams { get; set; }
+
+    public List<Applicationpage> apppages { get; set; } = new List<Applicationpage>();
+    public string newpagename { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.pagerservice.OnRetrievedItems += RetrievedItems;
+        this.pagerservice.OnRemoveItem += RemoveItem;
+        this.pagerservice.OnError += Error;
+
+        await base.OnInitializedAsync();
+    }
+
+    public void RetrievedItems(List<Applicationpage> obj, string apiQueryId)
+    {
+        if (apiQueryId.ToString() == this.applicationprovider?._contextsite?.Id)
+        {
+            this.apppages.AddRange(obj);
+            this.StateHasChanged();
+        }
+    }
+
+    public async void RemoveItem(Pagerevent<Applicationpage> obj)
+    {
+        if (obj.ApiQueryId.ToString() == this.applicationprovider?._contextsite?.Id)
+        {
+            try
+            {
+                var client = this.ihttpclientfactory?.CreateClient("Mihcelle.Hwavmvid.ServerApi.Unauthenticated");
+                await client.DeleteAsync(string.Concat("api/page/", obj.Item.Id));
+
+                this.apppages.Remove(obj.Item);
+                this.StateHasChanged();
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
+        }
+    }
+
+    public async Task Createnewpage()
+    {
+        try
+        {
+            var page = new Applicationpage()
+                {
+                    Id = null,
+                    Siteid = this.applicationprovider._contextsite.Id,
+                    Name = this.newpagename,
+                    Isnavigation = true,
+                    Urlpath = this.newpagename.Replace(" ", "").ToLower(),
+                    Createdon = DateTime.Now,
+                };
+
+            var client = this.ihttpclientfactory?.CreateClient("Mihcelle.Hwavmvid.ServerApi.Unauthenticated");
+            await client.PostAsJsonAsync("api/page", page);
+
+            this.navigationmanager.NavigateTo(this.navigationmanager.Uri, true);
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception.Message);
+        }
+    }
+
+    public async Task Updatepage()
+    {
+        try
+        {
+
+            var client = this.ihttpclientfactory?.CreateClient("Mihcelle.Hwavmvid.ServerApi.Unauthenticated");
+            await client.PutAsJsonAsync("api/page", this.applicationprovider._contextpage);
+
+            this.navigationmanager.NavigateTo(this.navigationmanager.Uri, true);
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception.Message);
+        }
+    }
+
+    public void Error(Exception exception, string apiQueryId)
+    {
+        if (this.applicationprovider?._contextsite?.Id == apiQueryId.ToString())
+        {
+            Console.Write(exception.Message);
+        }
+    }
+
+    public void Dispose()
+    {
+        this.pagerservice.OnRetrievedItems -= RetrievedItems;
+        this.pagerservice.OnRemoveItem -= RemoveItem;
+        this.pagerservice.OnError -= Error;
+    }
+
+}

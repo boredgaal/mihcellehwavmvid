@@ -1,0 +1,149 @@
+﻿@inherits Mainlayoutbase
+@namespace Mihcelle.Hwavmvid.Client
+@inject IHttpClientFactory httpclientfactory
+
+@using Mihcelle.Hwavmvid.Shared.Models
+
+
+@if (this.framework_installed == false)
+{
+    <Mihcelle.Hwavmvid.Client.Installation.Installationcomponent></Mihcelle.Hwavmvid.Client.Installation.Installationcomponent>
+}
+
+@if (this.framework_installed == true && this.applicationprovider?._contextsite != null && this._contextpages != null)
+{
+
+    <div class="mihcelle-hwavmvid-container">
+
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                <div class="container-fluid">
+
+                    <a class="navbar-brand" href="#">
+                        <img src="@(string.Concat(this.navigationmanager?.BaseUri, "images/", this.applicationprovider?._contextsite?.Brandmark))" height="72" style="background-color: slateblue;" />
+                    </a>
+
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item">
+                                <a class="nav-link disabled lead" href="#" style="font-size: 1.4rem;">@this.Configuration?["framework:description"]</a>
+                            </li>
+                        </ul>
+                        <ul class="navbar-nav ms-auto">
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                                    Links
+                                </a>
+                                <ul class="dropdown-menu" style="left: auto !important; right: 0;">
+                                    
+                                    @foreach (var item in this._contextpages)
+                                    {
+                                        <li class="dropdown-item">
+                                            <a href="@(string.Concat(this.navigationmanager?.BaseUri, item.Urlpath))">@item.Name</a>
+                                        </li>
+                                    }
+
+                                </ul>
+                            </li>
+
+                            @if (this.applicationprovider?._contextauth?.User?.Identity?.IsAuthenticated ?? false)
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                                        Packages
+                                    </a>
+                                    <ul class="dropdown-menu" style="left: auto !important; right: 0;">
+                                        <li>
+                                            <div class="p-2 p-sm-4" style="min-width: 410px;">
+                                                
+                                                <Mihcelle.Hwavmvid.Client.Modulepackagesdropdowncomponent></Mihcelle.Hwavmvid.Client.Modulepackagesdropdowncomponent>
+
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+
+                            @if (this.applicationprovider?._contextauth?.User?.Identity?.IsAuthenticated ?? false)
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                                        Admin
+                                    </a>
+                                    <ul class="dropdown-menu" style="left: auto !important; right: 0;">
+                                        <li>
+                                            <div class="p-2 p-sm-4" style="min-width: 850px;">
+
+                                                <Mihcelle.Hwavmvid.Client.Modules.Admin.Dashboard></Mihcelle.Hwavmvid.Client.Modules.Admin.Dashboard>
+                                            
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    
+                                    @if (this.applicationprovider?._contextauth?.User?.Identity?.IsAuthenticated ?? false)
+                                    {
+                                        <span>☑@this.applicationprovider?._contextauth.User.Identity.Name</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Account / Login</span>
+                                    }
+
+                                </a>
+                                <ul class="dropdown-menu" style="left: auto !important; right: 0;">
+                                    <li>
+                                        <div class="p-2 p-sm-4" style="min-width: 410px;">
+
+                                            <Accountdropdowncomponent></Accountdropdowncomponent>
+
+                                        </div>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <main class="container-fluid">
+            @Body
+        </main>
+
+    </div>
+
+    <link href="/_content/Mihcelle.Hwavmvid.Alerts/alerts.min.css" rel="stylesheet" />
+    <Mihcelle.Hwavmvid.Alerts.AlertsComponent></Mihcelle.Hwavmvid.Alerts.AlertsComponent>
+}
+
+@code {
+
+
+    // deprecated implementation
+    private async Task Getisinstalled()
+    {
+
+        try
+        {
+            var client = this.httpclientfactory.CreateClient("Mihcelle.Hwavmvid.ServerApi.Unauthenticated");
+            var response = await client.GetAsync("api/installation/");
+            var responsestring = await response.Content.ReadAsStringAsync();
+            this.framework_installed = Convert.ToBoolean(responsestring);
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception.Message);
+        }
+    }
+
+}

@@ -1,0 +1,56 @@
+﻿@namespace Mihcelle.Hwavmvid.Modules.ChatHubs
+@inherits ComponentBase
+
+@inject NavigationManager NavigationManager
+@inject ChatHubService ChatHubService
+
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Linq
+@using Mihcelle.Hwavmvid.Modules.ChatHubs.Services
+@using Oqtane.ChatHubs.Extensions
+@using Oqtane.ChatHubs.Models
+@using Mihcelle.Hwavmvid.Client.Modules
+
+<ChatJumbotronSettings></ChatJumbotronSettings>
+
+<div class="d-flex flex-column mt-0 mt-sm-2 px-1 py-2 w-100 bg-white border border-primary">
+
+    <AuthorizeView Roles="@Mihcelle.Hwavmvid.Shared.Constants.Authentication.Hostrole">
+        <Authorizing>
+            <text>...</text>
+        </Authorizing>
+        <Authorized>
+            <section class="my-1 p-sm-2">
+                <div class="form-group">
+                    <button type="button" class="btn btn-sm btn-link bg-white border border-light" @onclick="@(async() => await ChatHubService.ArchiveActiveDbItems(this.ChatHubService.ModuleId))">Archive all active database items.</button>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-sm btn-link bg-white border border-light" @onclick="@(() => ChatHubService.CreateExampleData(this.ChatHubService.ModuleId))">Create example lobby room items.</button>
+                </div>
+            </section>
+        </Authorized>
+    </AuthorizeView>
+
+    <section class="my-1 p-sm-2">
+
+        <ChatIgnores></ChatIgnores>
+
+    </section>
+
+    <section class="my-1 p-sm-2">
+
+        <ChatIgnoresBy></ChatIgnoresBy>
+
+    </section>
+
+    <section class="my-1 p-sm-2">
+
+        <ChatInvitations></ChatInvitations>
+
+    </section>
+
+</div>
+
+@code {
+
+}

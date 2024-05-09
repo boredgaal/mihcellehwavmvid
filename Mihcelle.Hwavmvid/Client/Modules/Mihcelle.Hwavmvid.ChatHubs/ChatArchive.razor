@@ -1,0 +1,124 @@
+﻿@namespace Mihcelle.Hwavmvid.Modules.ChatHubs
+@inherits ComponentBase
+@implements IDisposable
+
+@inject ChatHubService ChatHubService
+@inject Pagerservice<ChatHubCam> PagerServiceChatHubCam
+@inject NavigationManager NavigationManager
+
+@using Mihcelle.Hwavmvid.Client.Modules
+@using Oqtane.ChatHubs.Constants
+@using Mihcelle.Hwavmvid.Pager
+@using Mihcelle.Hwavmvid.Modules.ChatHubs.Services
+@using Mihcelle.Hwavmvid.VideoPlayer
+@using Oqtane.ChatHubs.Models
+@using Oqtane.ChatHubs.Enums
+@using System.Linq
+@using Microsoft.AspNetCore.SignalR.Client
+@using Mihcelle.Hwavmvid.Download
+
+@if (ChatHubService.Connection != null && ChatHubService.Connection.State == HubConnectionState.Connected)
+{
+
+    <ChatJumbotronVideoCaptures></ChatJumbotronVideoCaptures>
+
+    <div class="p-md-2 mt-2 text-center bg-white border border-primary">
+
+        @{
+            var archiveItemApiUrl = "api/chathub/GetArchiveItems";
+        }
+
+        <PagerComponent ApiQueryId="@this.ChatHubService.ModuleId" HubConnectionId="@ChatHubService.Connection.ConnectionId" ElementId="WasmHwavmvid.PagerArchiveItems" GetItemsApiUrl="@archiveItemApiUrl" ContextPageItems="@ChatHubService.VideoCaptures" ItemsPerPage="@ChatHubConstants.ArchiveItems" Class="py-sm-3" Scrolling="@false">
+            <PagerItem>
+
+                <div class="mb-2 mb-sm-3 p-0 p-sm-1" style="width: 340px; display: inline-block; text-align: center;">
+
+                    <div class="p-0 py-sm-1 input-group input-group-sm">
+
+                        <label for="@(string.Concat("video-uri-" + context.Id))">
+                            <small style="font-family: Consolas, monospace;">@context.CreatedOn.ToLongDateString()</small>
+                        </label>
+
+                        @{
+                            string videoSourceInputValue = string.Empty;
+                            if (!string.IsNullOrEmpty(context.VideoUrl) && !string.IsNullOrEmpty(context.VideoUrlExtension))
+                                videoSourceInputValue = string.Concat(NavigationManager.BaseUri, Oqtane.ChatHubs.Constants.ChatHubConstants.ApplicationTempPath, "/", context.VideoUrl, context.VideoUrlExtension);
+                            else
+                                videoSourceInputValue = "No video converted yet";
+                        }
+                        
+                        <small class="ellipsis bg-light w-100" id="@(string.Concat("video-uri-" + context.Id))">
+                            @videoSourceInputValue
+                        </small>
+
+                    </div>
+
+                    <VideoPlayerComponent TotalVideoSequences="@context.TotalVideoSequences" MapId="@Guid.NewGuid().ToString()" ParameterId1="@context.ChatHubRoomId.ToString()" ParameterId2="@context.Id.ToString()" Name="@(string.Concat("Cam Id: ", context.Id.ToString()))" BackgroundColor="#7FFFD4"></VideoPlayerComponent>
+
+                    <div class="text-center my-1">
+
+                        <button type="button" @onclick="() => PagerServiceChatHubCam.RemoveItem(context, this.ChatHubService.ModuleId)" class="btn btn-sm btn-primary">Delete</button>
+                    
+                        @{
+                            var mp4downloadapiurl = string.Concat("api/chathub", "/DownloadVideoCapture/" + ChatHubService.Connection.ConnectionId + "/" + context.Id.ToString() + "/" + @context.ChatHubRoomId.ToString() + "/" + this.ChatHubService.ModuleId.ToString() + "/" + ".mp4");
+                            var mp3downloadapiurl = string.Concat("api/chathub", "/DownloadVideoCapture/" + ChatHubService.Connection.ConnectionId + "/" + context.Id.ToString() + "/" + @context.ChatHubRoomId.ToString() + "/" + this.ChatHubService.ModuleId.ToString() + "/" + ".mp3");
+                        }
+
+                        <DownloadComponent Id="@string.Concat(".mp4", context.Id.ToString())" ApiQueryId="@context.Id.ToString()" FileType=".mp4" DownloadButtonName=".mp4" ApiUrl="@mp4downloadapiurl" HubConnection="@ChatHubService.Connection" HubContextMethodName="DownloadVideoCapture"></DownloadComponent>
+                        <DownloadComponent Id="@string.Concat(".mp3", context.Id.ToString())" ApiQueryId="@context.Id.ToString()" FileType=".mp3" DownloadButtonName=".mp3" ApiUrl="@mp3downloadapiurl" HubConnection="@ChatHubService.Connection" HubContextMethodName="DownloadVideoCapture"></DownloadComponent>
+
+                    </div>
+
+                </div>
+
+            </PagerItem>
+        </PagerComponent>
+
+    </div>
+
+}
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.PagerServiceChatHubCam.OnRetrievedItems += RetrievedItems;
+        this.PagerServiceChatHubCam.OnRemoveItem += RemoveItem;
+        this.PagerServiceChatHubCam.OnError += Error;
+        await base.OnInitializedAsync();
+    }
+
+    public void RetrievedItems(List<ChatHubCam> items, string apiQueryId)
+    {
+        if (apiQueryId == this.ChatHubService.ModuleId)
+        {
+            this.ChatHubService.VideoCaptures.AddRange(items);
+            this.ChatHubService.RunUpdateUI();
+        }
+    }
+    public async void RemoveItem(Pagerevent<ChatHubCam> obj)
+    {
+        if (obj.ApiQueryId == this.ChatHubService.ModuleId)
+        {
+            await this.ChatHubService.DeleteCam(obj.Item.Id);
+            this.ChatHubService.VideoCaptures.Remove(obj.Item);
+            this.ChatHubService.RunUpdateUI();
+        }
+    }
+
+    public void Error(Exception exception, string apiQueryId)
+    {
+        if (this.ChatHubService.ModuleId == apiQueryId)
+        {
+            this.ChatHubService.HandleException(exception);
+        }
+    }
+
+    public void Dispose()
+    {
+        this.PagerServiceChatHubCam.OnRetrievedItems -= RetrievedItems;
+        this.PagerServiceChatHubCam.OnRemoveItem -= RemoveItem;
+        this.PagerServiceChatHubCam.OnError -= Error;
+    }
+
+}

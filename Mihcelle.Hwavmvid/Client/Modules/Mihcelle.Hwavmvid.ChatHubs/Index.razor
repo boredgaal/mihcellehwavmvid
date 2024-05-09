@@ -1,0 +1,321 @@
+﻿@namespace Mihcelle.Hwavmvid.Modules.ChatHubs
+@inherits IndexBase
+
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.SignalR.Client
+@using System.Collections.Generic
+@using System.Linq
+@using Mihcelle.Hwavmvid.Alerts
+@using BlazorTabs
+@using Mihcelle.Hwavmvid.Video
+@using Oqtane.ChatHubs.Models
+@using Oqtane.ChatHubs.Enums
+@using BlazorDropdown
+@using Mihcelle.Hwavmvid.Notifications
+@using BlazorDynamicLayout
+@using Mihcelle.Hwavmvid.Jsapigeolocation
+
+<link href="/chathubs/chat-hub-stylesheets.css" rel="stylesheet" />
+
+<style type="text/css">
+    
+    .video-container:hover .motiondetection {
+        display: block !important;
+    }
+
+    @@media (max-width: 1199px) {
+        
+        body {
+            background-color: @BackgroundColor !important;
+        }
+    }
+
+</style>
+
+<div id="chathub-module-@this.ChatHubService.ModuleId" class="chathubs-container p-sm-3 mb-4" style="opacity: 0; background-color: @BackgroundColor">
+
+    <TabContainer ElementId="chathubs-navigation-tabs">
+
+        <TabItem>
+            <TabTitle>Lobby</TabTitle>
+            <TabContent>
+
+                @if (true)
+                {
+
+                    <ChatSlider></ChatSlider>
+                    <ChatJumbotronFrontpage></ChatJumbotronFrontpage>
+                    <ChatConnect GuestUsername="@GuestUsername"></ChatConnect>
+                    <ChatVisitors></ChatVisitors>
+                    <ChatGeolocation></ChatGeolocation>
+
+                    @if (ChatHubService.Connection?.State == HubConnectionState.Connected)
+                    {
+                        <div class="d-flex justify-content-between bd-highlight mb-2 border border-primary">
+                            <div class="flex-fill bd-highlight p-md-3 px-2 py-1 px-md-5 py-md-4 bg-warning text-dark">
+                                <small style="font-family: Consolas, monospace;">
+                                    Connected as @ChatHubService.ConnectedUser?.DisplayName
+                                </small>
+                            </div>
+                            <div class="flex-fill bd-highlight p-1 p-md-4 bg-light">
+                                <button type="button" @onclick="@(() => EditRoomModalRef.OpenCreateRoomModal())" class="btn btn-sm btn-link w-100 bg-transparent text-dark">Add new post</button>
+                            </div>
+                        </div>
+                    }
+
+                    <ChatLobbies EditRoomModalRef="@EditRoomModalRef"></ChatLobbies>
+                }
+
+            </TabContent>
+        </TabItem>
+
+        @if (ChatHubService.Connection?.State == HubConnectionState.Connected && ChatHubService.Rooms.Any())
+        {
+
+            <TabItem>
+                <TabTitle>
+                    Webcams
+                </TabTitle>
+                <TabContent>
+
+                    @if (ChatHubService.Rooms.Any())
+                    {
+
+                        List<BlazorDropdownItem> dropdownItems = new List<BlazorDropdownItem>();
+                        foreach (var room in ChatHubService.Rooms)
+                        {
+                            dropdownItems.Add(new BlazorDropdownItem() { Id = room.Id, Name = $"{room.Title} Settings" });
+                        }
+
+                        <div class="position-fixed d-md-none" style="top: 65px; right: 10px; z-index: 1040;">
+                            <BlazorDropdownComponent DropdownItemClicked="@SettingsDropdown_Clicked" DropdownItemModels="@dropdownItems"></BlazorDropdownComponent>
+                        </div>
+
+                        <BlazorDynamicLayoutComponent TabNavigationId="WasmDynamicLayoutTabNavigationId" TabContentId="WasmDynamicLayoutTabContentId" ActiveTabId="@ChatHubService.ContextRoomId" TabIdPropertyInfoName="Id" DraggableLivestreamContainerElementId="@DraggableLivestreamContainerElementId" Livestreams="@ChatHubService.Rooms" Tabs="@ChatHubService.Rooms" Contents="@ChatHubService.Rooms" TItemLivestream="ChatHubRoom" TItemTab="ChatHubRoom" TItemContent="ChatHubRoom">
+
+                            <LivestreamItemContainer Context="context">
+                                
+                                <div style="visibility: hidden; width: 0px !important; height: 0px !important;">
+                                    <ChatGeolocation></ChatGeolocation>
+                                </div>
+
+                                <div class="video-container w-100 h-100">
+
+                                    @if (ChatHubService.ConnectedUser?.Id == context.CreatorId)
+                                    {
+                                        var activeCamModel = ChatHubService.GetCamByRoom(context, ChatHubService.Connection.ConnectionId);
+                                        if (activeCamModel != null && context.CreatorId == ChatHubService.ConnectedUser.Id)
+                                        {
+                                            var audioDefaultDevice = context.Devices.FirstOrDefault(item => item.Type == ChatHubDeviceType.Audio.ToString());
+                                            var microphoneDefaultDevice = context.Devices.FirstOrDefault(item => item.Type == ChatHubDeviceType.Microphone.ToString());
+                                            var webcamDefaultDevice = context.Devices.FirstOrDefault(item => item.Type == ChatHubDeviceType.Webcam.ToString());
+
+                                            <div class="d-flex flex-wrap flex-md-nowrap w-100 h-100 position-relative">
+
+                                                <div class="w-100 h-100 postion-relative" style="min-width: 320px !important;">
+                                                    <VideoComponent Id1="@context.Id.ToString()"
+                                                                            Id2="@activeCamModel.Id.ToString()" 
+                                                                            Type="@VideoType.LocalLivestream" 
+                                                                            BackgroundColor="@context.BackgroundColor" 
+                                                                            Name="@context.Title" 
+                                                                            Status="@(context.Creator.Connections.Any(c => context.Cams.Any(cam => cam.ChatHubConnectionId == c.Id && cam.Status == ChatHubCamStatus.Broadcasting.ToString())) ? VideoStatusType.Live : VideoStatusType.Offline)" 
+                                                                            Viewers="@context.Viewers.Count()" 
+                                                                            Framerate="@framerate" 
+                                                                            VideoBitsPerSecond="@videoBitsPerSecond" 
+                                                                            AudioBitsPerSecond="@audioBitsPerSecond" 
+                                                                            VideoSegmentsLength="@videoSegmentsLength" 
+                                                                            AudioDefaultDeviceId="@(audioDefaultDevice?.DefaultDeviceId ?? string.Empty)"
+                                                                            MicrophoneDefaultDeviceId="@(microphoneDefaultDevice?.DefaultDeviceId ?? string.Empty)"
+                                                                            WebcamDefaultDeviceId="@(webcamDefaultDevice?.DefaultDeviceId ?? string.Empty)"
+                                                                            >
+                                                    </VideoComponent>
+
+                                                    <AuthorizeView Context="authorizedcontext">
+                                                        <Authorized>
+
+                                                            @{
+                                                                var motionlabel = string.Concat("motion-label-", context.Id.ToString(), "-", activeCamModel.Id.ToString());
+                                                            }
+
+                                                            <div class="position-absolute motiondetection" style="z-index: 1; display: none; top: 42px; left: 10px;">
+
+                                                                <div class="position-relative d-inline">
+
+                                                                    <span>
+                                                                        <input type="number" step="200" style="width: 82px;" class="form-control form-control-sm" @bind="@context.Motiondetectionfluctation" />
+                                                                    </span>
+
+                                                                    <span class="form-check">
+                                                                        <input type="checkbox" id="@motionlabel" class="form-check-input" @bind="@context.Motiondetection" />
+                                                                        <label for="@motionlabel" class="form-check-label" style="text-shadow: -1px -1px white;">Enable md</label>
+                                                                    </span>
+
+                                                                </div>
+
+                                                            </div>
+
+                                                        </Authorized>                                            
+                                                    </AuthorizeView>
+                                                </div>
+                                                <div class="w-100 h-100 postion-relative" style="min-width: 320px !important;">
+                                                    <Jsapibingmapcomponent ComponentId="@(string.Concat("roomid", context.Id.ToString(), "connectionid", context.Creator.Connections.FirstOrDefault(item => item.ConnectionId == ChatHubService.Connection.ConnectionId).Id.ToString()))"></Jsapibingmapcomponent>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (context.Creator != null && context.CreatorId != ChatHubService.ConnectedUser.Id)
+                                        {
+                                            if (!context.Creator.Connections.Any())
+                                            {
+                                                <div class="card bg-light w-100 text-start m-md-1" style="height: 198px;">
+                                                    <div class="card-body">
+                                                        <h6 class="card-subtitle mb-2 text-muted">@context.Title</h6>
+                                                        <p class="card-text">No room creator @(context.Creator.DisplayName) online.</p>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            foreach (var connection in context.Creator.Connections)
+                                            {                                            
+                                                if (connection.Cams != null)
+                                                {
+                                                    <div class="d-flex flex-wrap flex-md-nowrap w-100 h-100 position-relative">
+
+                                                        <div class="w-100 h-100 postion-relative" style="min-width: 320px !important;">
+
+                                                            @{
+                                                                VideoStatusType status = VideoStatusType.Offline;
+                                                                var broadcastingCams = connection.Cams.Where(cam => cam.Status == ChatHubCamStatus.Broadcasting.ToString()).ToList();
+                                                            }
+                                                            @if (context.Cams.Any(cam => broadcastingCams.Any(item => cam.Id == item.Id)))
+                                                            {
+                                                                status = VideoStatusType.Live;
+                                                            }
+                                                            @{
+                                                                var activeCamModel = ChatHubService.GetCamByRoom(context, connection.ConnectionId);
+                                                            }
+                                                            @if (activeCamModel != null)
+                                                            {
+                                                                <VideoComponent Id1="@context.Id.ToString()" Id2="@activeCamModel.Id.ToString()" Type="@VideoType.RemoteLivestream" BackgroundColor="@context.BackgroundColor" Name="@context.Title" Status="@status" Viewers="@context.Viewers.Count()" Framerate="@framerate" VideoBitsPerSecond="@videoBitsPerSecond" AudioBitsPerSecond="@audioBitsPerSecond" VideoSegmentsLength="@videoSegmentsLength"></VideoComponent>
+                                                            }
+                                                            else if (activeCamModel == null)
+                                                            {
+                                                                <div class="card bg-light w-100 text-start m-md-1" style="height: 198px;">
+                                                                    <div class="card-body">
+                                                                        <h6 class="card-subtitle mb-2 text-muted">@context.Title</h6>
+                                                                        <p class="card-text">No webcam found from @(context.Creator.DisplayName).</p>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        </div>
+
+                                                        <div class="w-100 h-100 postion-relative" style="min-width: 320px !important;">
+                                                            <Jsapibingmapcomponent ComponentId="@(string.Concat("roomid", context.Id.ToString(), "connectionid", connection.Id.ToString()))"></Jsapibingmapcomponent>
+                                                        </div>
+
+                                                    </div>
+                                                        
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                </div>
+
+                            </LivestreamItemContainer>
+
+                            <TabItemContainer Context="context">
+
+                                @{
+                                    bool activeTab = ChatHubService.ContextRoomId == context.Item.Id.ToString();
+                                }
+
+                                @context.Item.Title&nbsp;
+                                <span class="badge bg-primary @(context.Item.UnreadMessages != 0 ? "" : "d-none")">@context.Item.UnreadMessages</span>
+
+                                <span class="position-absolute" @onclick="async () => await LeaveRoom_Clicked(context.Item.Id, this.ChatHubService.ModuleId)" style="top: 0px; right: 0px;">
+                                    <span>✕</span>
+                                </span>
+
+                            </TabItemContainer>
+
+                            <ContentItemContainer Context="context">
+
+                                <div @key="context.Item" class="d-flex">
+
+                                    <div class="bg-white @(context.Item.ShowUserlist ? "d-none" : "d-flex flex-fill")">
+
+                                        <ChatRoom room="@context.Item" Settings="@settings" ImageModalRef="@ImageModalRef" MessageWindowHeight="@MessageWindowHeight"></ChatRoom>
+
+                                    </div>
+
+                                    <div class="userlist p-0 p-sm-2 w-100 bg-light @(context.Item.ShowUserlist ? "flex-fill d-flex" : "d-none d-xl-flex")" style="min-width: 340px; max-width: 420px;">
+
+                                        <ChatSidebar room="@context.Item" SettingsModalRef="@SettingsModalRef" UserlistWindowHeight="@UserlistWindowHeight"></ChatSidebar>
+
+                                    </div>
+
+                                </div>
+
+                            </ContentItemContainer>
+
+                        </BlazorDynamicLayoutComponent>
+
+                    }
+
+                </TabContent>
+            </TabItem>
+
+        }
+        @if (ChatHubService.Connection?.State == HubConnectionState.Connected)
+        {
+            <TabItem>
+                <TabTitle>
+                    Settings
+                </TabTitle>
+                <TabContent>
+                    <ChatSettings></ChatSettings>
+                </TabContent>
+            </TabItem>
+        }
+
+        <TabItem>
+            <TabTitle>Archive</TabTitle>
+            <TabContent>
+                <ChatArchive></ChatArchive>
+            </TabContent>
+        </TabItem>       
+
+    </TabContainer>
+
+    <div class="d-flex flex-column my-2 px-2">
+        <div class="ms-auto bg-danger">
+            <small>
+                <a href="https://github.com/boredgirl/hwavmvidtechnologies" target="_blank" class="text-white" title="asp net core framework module">Wasmchat Project At Github</a>
+            </small>
+        </div>
+    </div>
+
+</div>
+
+<SettingsModal @ref="SettingsModalRef"></SettingsModal>
+<ImageModal @ref="ImageModalRef"></ImageModal>
+<EditRoomModal @ref="EditRoomModalRef"></EditRoomModal>
+<NotificationsComponent></NotificationsComponent>
+
+@code {
+
+    /*
+    public override List<Resource> Resources => new List<Resource>()
+    {
+        new Resource { ResourceType = ResourceType.Script, Url = "https://code.jquery.com/jquery-3.6.3.slim.min.js", Integrity = "sha256-ZwqZIVdD3iXNyGHbSYdsmWP//UBokj2FHAxKuSBKDSo=", CrossOrigin = "anonymous", Level = ResourceLevel.Module },
+        new Resource { ResourceType = ResourceType.Script, Bundle = "IoButtons", Url = "https://buttons.github.io/buttons.js", CrossOrigin = "anonymous", Location = ResourceLocation.Body, Level = ResourceLevel.Module },
+        new Resource { ResourceType = ResourceType.Script, Bundle = "Popper", Url = "https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js", Integrity = "sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p", CrossOrigin = "anonymous", Location = ResourceLocation.Body, Level = ResourceLevel.Module },
+
+		// bing maps script tag
+        new Resource { ResourceType = ResourceType.Script, Url = string.Concat("https://www.bing.com/api/maps/mapcontrol?key=", bingMapsApiKey), Level = ResourceLevel.Module },
+	};
+    */
+}

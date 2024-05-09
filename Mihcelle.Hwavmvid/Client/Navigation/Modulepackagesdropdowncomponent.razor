@@ -1,0 +1,60 @@
+﻿@namespace Mihcelle.Hwavmvid.Client
+@inherits Mainlayoutbase
+
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Microsoft.AspNetCore.Http
+@using Mihcelle.Hwavmvid.Client.Authentication
+
+
+<AuthorizeView>
+    <Authorized>
+
+        @if (this.applicationprovider?._contextpackages != null)
+        {
+
+            <h4 class="lead fw-bold bg-dark text-white text-center"><small>Application framework modules extensions</small></h4>
+
+            <div class="d-flex flex-wrap bg-white mt-4 py-3 position-relative" style="z-index: 4100; max-width: 410px;">            
+
+                @foreach (var package in this.applicationprovider._contextpackages)
+                {
+
+                    <div class="position-relative p-1" style="width: 150px; height: 150px;" id="@package.Id" draggable="true">
+                        <div class="btn btn-light w-100 h-100 px-2 py-4 bg-light text-dark text text-centerborder border-dark rounded-0">
+                            <span class="display-4">@package.Icon</span><br />
+                            <small class="py-2 w-100" style="font-size: 0.8rem; position:absolute; left:0px; bottom:10px;">@package.Name</small>
+                        </div>
+                    </div>
+
+                }
+
+            </div>
+
+        }
+
+    </Authorized>
+</AuthorizeView>
+
+@code {
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await InvokeAsync(async () =>
+        {
+            var client = this.ihttpclientfactory?.CreateClient("Mihcelle.Hwavmvid.ServerApi.Unauthenticated");
+            this.applicationprovider._contextpackages = await client.GetFromJsonAsync<List<Applicationmodulepackage>>("api/modulepackage/packageextensions");
+            this.StateHasChanged();
+        });
+
+
+        await base.OnInitializedAsync();
+    }
+
+}

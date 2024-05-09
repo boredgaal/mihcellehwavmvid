@@ -1,0 +1,34 @@
+﻿@namespace Mihcelle.Hwavmvid.Client.Modules
+@inherits Modulebase
+
+@using Mihcelle.Hwavmvid.Client.Modules.Admin
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Mihcelle.Hwavmvid.Shared.Constants
+@using Mihcelle.Hwavmvid.Client.Modules
+
+<div class="position-relative">
+
+    <DynamicComponent Type="@this.Componenttype" Parameters="@this.servpara"></DynamicComponent>
+
+    <AuthorizeView Roles="Host">
+        <Authorized>
+
+            <Adminbase _adminmodalelementid="@adminmodalelementid" _componenttype="@this.Componentsettingstype"></Adminbase>
+
+            <button @onclick="async() => await Openmodulesettings()" type="button" class="btn btn-sm btn-primary px-2 py-2 rounded-0" style="position: absolute; top: 5px; right: 132px;">
+                <small class="py-2">Open module settings</small>
+            </button>
+
+            <button @onclick="async() => await Deletemodule(this.Moduleid)" @onclick:stopPropagation=true type="button" class="btn btn-sm btn-primary px-2 py-2 rounded-0" style="position: absolute; top: 5px; right: 5px;">
+                <small class="py-2">Delete module item</small>
+            </button>
+
+        </Authorized>
+    </AuthorizeView>
+
+</div>
+
+@code {
+
+}

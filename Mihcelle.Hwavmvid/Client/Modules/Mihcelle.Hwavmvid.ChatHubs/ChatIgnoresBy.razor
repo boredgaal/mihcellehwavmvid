@@ -1,0 +1,70 @@
+﻿@namespace Mihcelle.Hwavmvid.Modules.ChatHubs
+@inherits ComponentBase
+@implements IDisposable 
+
+@inject ChatHubService ChatHubService
+@inject Pagerservice<ChatHubIgnoredBy> PagerServiceChatHubIgnoredBy
+
+@using System.Linq
+@using Mihcelle.Hwavmvid.Modules.ChatHubs.Services
+@using Oqtane.ChatHubs.Extensions
+@using Oqtane.ChatHubs.Models
+@using Mihcelle.Hwavmvid.Pager
+@using Oqtane.ChatHubs.Constants
+@using Microsoft.AspNetCore.SignalR.Client
+@using Mihcelle.Hwavmvid.Client.Modules
+
+@if (ChatHubService.Connection != null && ChatHubService.Connection.State == HubConnectionState.Connected)
+{
+
+    var getItemsApiUrl = "api/chathub/GetIgnoredByItems";
+
+    <h5><span>✚</span> Ignored by users list <span class="badge bg-success">NEW</span></h5>
+
+    <PagerComponent ApiQueryId="@this.ChatHubService.ModuleId" HubConnectionId="@ChatHubService.Connection.ConnectionId" ElementId="WasmHwavmvid.PagerIgnoredByItems" GetItemsApiUrl="@getItemsApiUrl" ContextPageItems="@ChatHubService.IgnoredByUsers" Context="context" ItemsPerPage="@ChatHubConstants.IgnoredByItems" TItemGeneric="@ChatHubIgnoredBy" Class="py-sm-3" Scrolling="@false">
+        <PagerItem>
+
+            <div class="d-flex" style="background-color: lightgoldenrodyellow; border-bottom: 1px solid #f1f1f1;">
+                <div class="flex-fill">
+                    <button type="button" class="btn btn-sm btn-link">@context.User.DisplayName</button>
+                </div>
+            </div>
+
+        </PagerItem>
+    </PagerComponent>
+
+}
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.PagerServiceChatHubIgnoredBy.OnRetrievedItems += RetrievedItems;
+        this.PagerServiceChatHubIgnoredBy.OnError += Error;
+        await base.OnInitializedAsync();
+    }
+
+    public void RetrievedItems(List<ChatHubIgnoredBy> obj, string apiQueryId)
+    {
+        if (apiQueryId == this.ChatHubService.ModuleId)
+        {
+            this.ChatHubService.IgnoredByUsers.AddRange(obj);
+            this.ChatHubService.RunUpdateUI();
+        }
+    }
+
+    public void Error(Exception exception, string apiQueryId)
+    {
+        if (this.ChatHubService.ModuleId == apiQueryId)
+        {
+            this.ChatHubService.HandleException(exception);
+        }
+    }
+
+    public void Dispose()
+    {
+        this.PagerServiceChatHubIgnoredBy.OnRetrievedItems -= RetrievedItems;
+        this.PagerServiceChatHubIgnoredBy.OnError -= Error;
+    }
+
+}

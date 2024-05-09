@@ -1,0 +1,88 @@
+﻿@namespace Mihcelle.Hwavmvid.Modules.ChatHubs
+@inherits ComponentBase
+@implements IDisposable
+
+@using System.Linq
+@using System.Collections.Generic
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.SignalR.Client
+@using Mihcelle.Hwavmvid.Modules.ChatHubs.Services
+@using Oqtane.ChatHubs.Models
+@using Mihcelle.Hwavmvid.Jsapigeolocation
+@using Mihcelle.Hwavmvid.Client.Modules
+
+@inject ChatHubService ChatHubService
+@inject NavigationManager NavigationManager
+
+<AuthorizeView>
+    <Authorizing>
+
+        <text>loading geolocation map..</text>
+
+    </Authorizing>
+    <Authorized>
+
+        @if (ChatHubService.Connection != null && ChatHubService.Connection.State == HubConnectionState.Connected)
+        {
+            <div class="p-2 bg-white w-100 mb-0 mb-sm-2 border border-primary">
+                <div class="p-0 p-sm-1">
+
+                    <div class="accordion accordion-flush" id="geolocationflushaccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="geolocationflushheading">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#geolocationflushcollapse" aria-expanded="false" aria-controls="geolocationflushcollapse">
+                                    Geolocation map for each connected user device for @ChatHubService.ConnectedUser?.DisplayName
+                                </button>
+                            </h2>
+                            <div id="geolocationflushcollapse" class="accordion-collapse collapse" aria-labelledby="geolocationflushheading" data-bs-parent="#geolocationflushaccordion">
+                                
+                                <div class="accordion-body">
+                                    <div class="d-flex flex-wrap bd-highlight">
+
+                                        <div class="p-1">
+                                                
+                                            <small class="bg-info">connection_id: @ChatHubService.Connection.ConnectionId</small>
+                                            <Jsapigeolocationcomponent Getgeolocationcoordsintervall="@geoLocatiionPositionInterval"></Jsapigeolocationcomponent>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        }
+
+    </Authorized>
+</AuthorizeView>
+
+@code {
+
+    [Inject] protected Applicationmodulesettingsservice SettingService { get; set; }
+
+    public int geoLocatiionPositionInterval { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Dictionary<string, string> settings = await this.SettingService.GetModuleSettingsAsync(this.ChatHubService.ModuleId);
+        this.geoLocatiionPositionInterval = Int32.Parse(this.SettingService.GetSetting(settings, "GeoLocationPositionInterval", "41000"));
+        this.ChatHubService.OnUpdateUI += (object sender, EventArgs e) => UpdateUI(sender, e);
+        await base.OnInitializedAsync();
+    }
+
+    public void UpdateUI(object sender, EventArgs e)
+    {
+        InvokeAsync(() =>
+        {
+            this.StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        this.ChatHubService.OnUpdateUI -= (object sender, EventArgs e) => UpdateUI(sender, e);
+    }
+}

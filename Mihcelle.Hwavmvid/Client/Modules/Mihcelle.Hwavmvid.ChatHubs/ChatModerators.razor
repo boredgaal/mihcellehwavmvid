@@ -1,0 +1,87 @@
+﻿@namespace Mihcelle.Hwavmvid.Modules.ChatHubs
+@inherits ComponentBase
+@implements IDisposable 
+
+@using System.Linq
+@using Mihcelle.Hwavmvid.Modules.ChatHubs.Services
+@using Oqtane.ChatHubs.Extensions
+@using Oqtane.ChatHubs.Models
+@using Mihcelle.Hwavmvid.Pager
+@using Oqtane.ChatHubs.Constants
+@using Microsoft.AspNetCore.SignalR.Client
+@using Mihcelle.Hwavmvid.Client.Modules
+
+@inject ChatHubService ChatHubService
+@inject Pagerservice<ChatHubModerator> PagerServiceChatHubModerator
+
+@if (ChatHubService.Connection != null && ChatHubService.Connection.State == HubConnectionState.Connected)
+{
+
+    var getItemsApiUrl = "api/chathub/GetModeratorItems";
+
+    <h5>Moderators <span class="badge bg-success">NEW</span></h5>
+
+    <PagerComponent ApiQueryId="@Room.Id" HubConnectionId="@ChatHubService.Connection.ConnectionId" ElementId="WasmHwavmvid.PagerModeratorItems" GetItemsApiUrl="@getItemsApiUrl" ContextPageItems="@Room.Moderators" Context="context" ItemsPerPage="@ChatHubConstants.ModeratorItems" TItemGeneric="@ChatHubModerator" Class="py-sm-3" Scrolling="@false">
+        <PagerItem>
+
+            <div class="d-flex" style="background-color: lightgoldenrodyellow; border-bottom: 1px solid #f1f1f1;">
+                <div class="flex-fill">
+                    <button type="button" class="btn btn-sm btn-link">@context.ModeratorDisplayName</button>
+                </div>
+                <div class="flex-fill text-start">
+                    <button type="button" @onclick="@(() => PagerServiceChatHubModerator.RemoveItem(context, Room.Id))" class="btn btn-sm btn-danger">
+                        <span aria-hidden="true" style="font-size: 1.4rem; line-height: 0;">&times;</span> Remove Moderator
+                    </button>
+                </div>
+            </div>
+
+        </PagerItem>
+    </PagerComponent>
+
+}
+
+@code {
+
+    [Parameter] public ChatHubRoom Room { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.PagerServiceChatHubModerator.OnRetrievedItems += RetrievedItems;
+        this.PagerServiceChatHubModerator.OnRemoveItem += RemoveItem;
+        this.PagerServiceChatHubModerator.OnError += Error;
+        await base.OnInitializedAsync();
+    }
+
+    public void RetrievedItems(List<ChatHubModerator> obj, string apiQueryId)
+    {
+        if (this.Room.Id == apiQueryId)
+        {
+            this.Room.Moderators.AddRange(obj);
+            this.ChatHubService.RunUpdateUI();
+        }
+    }
+    public async void RemoveItem(Pagerevent<ChatHubModerator> obj)
+    {
+        if (this.Room.Id == obj.ApiQueryId)
+        {
+            await this.ChatHubService.RemoveModeratorAsync(obj.Item.ChatHubUserId, obj.ApiQueryId);
+            this.Room.Moderators.Remove(obj.Item);
+            this.ChatHubService.RunUpdateUI();
+        }
+    }
+    public void Error(Exception exception, string apiQueryId)
+    {
+        if (this.Room.Id == apiQueryId)
+        {
+            this.ChatHubService.HandleException(exception);
+        }
+    }
+
+    public void Dispose()
+    {
+        this.PagerServiceChatHubModerator.OnRetrievedItems -= RetrievedItems;
+        this.PagerServiceChatHubModerator.OnRemoveItem -= RemoveItem;
+        this.PagerServiceChatHubModerator.OnError -= Error;
+    }
+
+}

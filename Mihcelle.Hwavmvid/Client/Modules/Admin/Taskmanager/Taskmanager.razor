@@ -1,0 +1,148 @@
+﻿@inherits Modulebase
+@namespace Mihcelle.Hwavmvid.Modules.Taskmanager
+
+@using System.Linq
+@using System.Collections.Generic
+@using Mihcelle.Hwavmvid.Client.Pages
+@using Mihcelle.Hwavmvid.Pager
+@using Mihcelle.Hwavmvid.Shared.Models
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Mihcelle.Hwavmvid.Client.Modules
+
+@inject IHttpClientFactory ihttpclientfactory
+@inject NavigationManager navigationmanager
+@inject Pagerservice<Applicationtask> pagerservice
+@inject Applicationprovider? applicationprovider
+@inject NavigationManager navigationmanager
+
+<AuthorizeView>
+    <Authorized>
+
+        <div class="container">
+            <div class="row align-items-center my-2">
+
+                <div class="col-lg-12 py-2">
+
+
+                    <div class="container">
+
+                        @{
+                            var getItemsApiUrl = string.Concat(this.navigationmanager?.BaseUri, "api/task");
+                        }
+
+                        <PagerComponent ApiQueryId="@this.applicationprovider?._contextsite?.Id" HubConnectionId="@string.Empty" ElementId="Mihcellehwavmvidtasks" GetItemsApiUrl="@getItemsApiUrl" ContextPageItems="@this.taskitems" Context="contextitem" ItemsPerPage="1" TItemGeneric="@Applicationtask" Class="py-sm-3" Scrolling="@false">
+                            <PagerItem>
+
+                                <div class="row" style="background-color: lightgoldenrodyellow; border-bottom: 1px solid #f1f1f1;">
+
+                                    <div class="col-sm-3">
+                                        <button disabled type="button" class="btn btn-sm btn-link">Project: @contextitem.Projectname</button>
+                                    </div>
+
+                                    <div class="col-sm-3">
+                                        <button disabled type="button" class="btn btn-sm btn-link">Task: @contextitem.Taskname</button>
+                                    </div>
+
+                                    <div class="col-sm-3">
+                                        <button type="button" @onclick="async () => await enabledisabletask(contextitem)" class="btn btn-sm btn-link">enable/disable task active: @contextitem.Active.ToString()</button>
+                                    </div>
+
+                                    <div class="col-sm-3">
+                                        <button disabled type="button" class="btn btn-sm btn-link">interval in milliseconds: @contextitem.Interval</button>
+                                    </div>
+
+                                </div>
+
+                            </PagerItem>
+                        </PagerComponent>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </Authorized>
+</AuthorizeView>
+
+
+@code {
+
+
+    [Parameter] public Moduleservice<Modulepreferences> Moduleparams { get; set; }
+
+    public List<Applicationtask> taskitems { get; set; } = new List<Applicationtask>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.pagerservice.OnRetrievedItems += RetrievedItems;
+        this.pagerservice.OnRemoveItem += RemoveItem;
+        this.pagerservice.OnError += Error;
+
+        await base.OnInitializedAsync();
+    }
+
+    public void RetrievedItems(List<Applicationtask> obj, string apiQueryId)
+    {
+        if (apiQueryId.ToString() == this.applicationprovider?._contextsite?.Id)
+        {
+            this.taskitems.AddRange(obj);
+            this.StateHasChanged();
+        }
+    }
+
+    public async void RemoveItem(Pagerevent<Applicationtask> obj)
+    {
+        if (obj.ApiQueryId.ToString() == this.applicationprovider?._contextsite?.Id)
+        {
+            try
+            {
+                var client = this.ihttpclientfactory?.CreateClient("Mihcelle.Hwavmvid.ServerApi.Unauthenticated");
+                await client.DeleteAsync(string.Concat("api/task/", obj.Item.Id));
+
+                this.taskitems.Remove(obj.Item);
+                this.StateHasChanged();
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
+        }
+    }
+
+    public void Error(Exception exception, string apiQueryId)
+    {
+        if (this.applicationprovider?._contextsite?.Id == apiQueryId.ToString())
+        {
+            Console.Write(exception.Message);
+        }
+    }
+
+    protected async Task enabledisabletask(Applicationtask taskitem)
+    {
+
+        var client = this.ihttpclientfactory?.CreateClient("Mihcelle.Hwavmvid.ServerApi.Unauthenticated");
+        var response = await client.PostAsJsonAsync("api/task", taskitem);
+        if (response.IsSuccessStatusCode == true)
+        {
+            var item = this.taskitems.FirstOrDefault(item => item.Id == taskitem.Id);
+            if (item != null)
+            {
+                item.Active = !(taskitem.Active);
+                this.StateHasChanged();
+            }
+        }
+
+        //this.navigationmanager.NavigateTo(this.navigationmanager.Uri, true);
+    }
+
+    public void Dispose()
+    {
+        this.pagerservice.OnRetrievedItems -= RetrievedItems;
+        this.pagerservice.OnRemoveItem -= RemoveItem;
+        this.pagerservice.OnError -= Error;
+    }
+
+}

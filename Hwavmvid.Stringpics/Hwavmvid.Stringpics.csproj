@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	  
+    <OutputType>Library</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <AssemblyName>Mihcelle.Hwavmvid.Stringpics</AssemblyName>
+    <Version>1.0.0</Version>
+    <Product>Hwavmvid.technologies</Product>
+    <authors>hwavmvid_tunstall</authors>
+    <Company>hwavmvid technologies</Company>
+    <copyright>hwavmvid corp.</copyright>
+	<PackageProjectUrl>https://mihcelle.hwavmvid.com/</PackageProjectUrl>
+    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hwavmvid.Motiondetection\Hwavmvid.Motiondetection.csproj" />
+  </ItemGroup>
+
+</Project>

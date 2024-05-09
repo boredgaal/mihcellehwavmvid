@@ -1,0 +1,89 @@
+﻿@namespace Mihcelle.Hwavmvid.Modules.ChatHubs
+@inherits ComponentBase
+@implements IDisposable 
+
+@using System.Linq
+@using Mihcelle.Hwavmvid.Modules.ChatHubs.Services
+@using Oqtane.ChatHubs.Extensions
+@using Oqtane.ChatHubs.Models
+@using Mihcelle.Hwavmvid.Pager
+@using Oqtane.ChatHubs.Constants
+@using Microsoft.AspNetCore.SignalR.Client
+@using Mihcelle.Hwavmvid.Client.Modules
+
+@inject NavigationManager NavigationManager
+@inject ChatHubService ChatHubService
+@inject Pagerservice<ChatHubWhitelistUser> PagerServiceChatHubWhitelistUser
+
+@if (ChatHubService.Connection != null && ChatHubService.Connection.State == HubConnectionState.Connected)
+{
+
+    var getItemsApiUrl = "api/chathub/GetWhitelistUserItems";
+
+    <h5>Whitelist users <span class="badge bg-success">NEW</span></h5>
+
+    <PagerComponent ApiQueryId="@Room.Id" HubConnectionId="@ChatHubService.Connection.ConnectionId" ElementId="WasmHwavmvid.PagerWhitelistItems" GetItemsApiUrl="@getItemsApiUrl" ContextPageItems="@Room.WhitelistUsers" Context="context" ItemsPerPage="@ChatHubConstants.WhitelistItems" TItemGeneric="@ChatHubWhitelistUser" Class="py-sm-3" Scrolling="@false">
+        <PagerItem>
+
+            <div class="d-flex" style="background-color: lightgoldenrodyellow; border-bottom: 1px solid #f1f1f1;">
+                <div class="flex-fill">
+                    <button type="button" class="btn btn-sm btn-link">@context.WhitelistUserDisplayName</button>
+                </div>
+                <div class="flex-fill text-start">
+                    <button type="button" @onclick="@(() => PagerServiceChatHubWhitelistUser.RemoveItem(context, Room.Id))" class="btn btn-sm btn-danger">
+                        <span aria-hidden="true" style="font-size: 1.4rem; line-height: 0;">&times;</span> Remove User
+                    </button>
+                </div>
+            </div>
+
+        </PagerItem>
+    </PagerComponent>
+
+}
+
+@code {
+
+
+    [Parameter] public ChatHubRoom Room { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.PagerServiceChatHubWhitelistUser.OnRetrievedItems += RetrievedItems;
+        this.PagerServiceChatHubWhitelistUser.OnRemoveItem += RemoveItem;
+        this.PagerServiceChatHubWhitelistUser.OnError += Error;
+        await base.OnInitializedAsync();
+    }
+
+    public void RetrievedItems(List<ChatHubWhitelistUser> obj, string apiQueryId)
+    {
+        if (this.Room.Id == apiQueryId)
+        {
+            this.Room.WhitelistUsers.AddRange(obj);
+            this.ChatHubService.RunUpdateUI();
+        }
+    }
+    public async void RemoveItem(Pagerevent<ChatHubWhitelistUser> obj)
+    {
+        if (this.Room.Id == obj.ApiQueryId)
+        {
+            await this.ChatHubService.RemoveWhitelistUser_Clicked(obj.Item.ChatHubUserId, obj.ApiQueryId);
+            this.Room.WhitelistUsers.Remove(obj.Item);
+            this.ChatHubService.RunUpdateUI();
+        }
+    }
+    public void Error(Exception exception, string apiQueryId)
+    {
+        if (this.Room.Id == apiQueryId)
+        {
+            this.ChatHubService.HandleException(exception);
+        }
+    }
+
+    public void Dispose()
+    {
+        this.PagerServiceChatHubWhitelistUser.OnRetrievedItems -= RetrievedItems;
+        this.PagerServiceChatHubWhitelistUser.OnRemoveItem -= RemoveItem;
+        this.PagerServiceChatHubWhitelistUser.OnError -= Error;
+    }
+
+}

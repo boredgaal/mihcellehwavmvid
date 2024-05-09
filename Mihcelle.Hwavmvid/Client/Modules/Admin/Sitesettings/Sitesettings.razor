@@ -1,0 +1,101 @@
+﻿@inherits Modulebase
+@namespace Mihcelle.Hwavmvid.Modules.Sitesettings
+
+@using Mihcelle.Hwavmvid.Fileupload
+@using Mihcelle.Hwavmvid.Shared.Models
+@using Mihcelle.Hwavmvid.Client.Pages
+@using Mihcelle.Hwavmvid.Client.Modules
+
+@inject IHttpClientFactory ihttpclientfactory
+@inject NavigationManager navigationmanager
+@inject Applicationprovider applicationprovider
+
+
+<AuthorizeView>
+    <Authorized>
+
+        <div class="container">
+            <div class="row align-items-center my-2">
+
+                <div class="col-md-4">
+                    <div class="text-center">
+
+                        <strong>Brandmark</strong>
+
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="p-1 bg-light">
+
+                        <FileUploadComponent ApiUrl="api/site/brandmark" InputFileId="@this.Brandmarkinputfieldid" DropzoneElementId="@this.Brandmarkdropzoneelementid"></FileUploadComponent>
+
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+
+                    <div class="w-100 text-center">
+                        <img src="@string.Concat(this.navigationmanager.BaseUri, "images/", this.applicationprovider._contextsite?.Brandmark)" height="88" />
+                    </div>
+
+                </div>
+
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <strong>Favicon</strong>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="p-1 bg-light">
+
+                        <FileUploadComponent ApiUrl="api/site/favicon" InputFileId="@this.Faviconinputfieldid" DropzoneElementId="@this.Favicondropzoneelementid"></FileUploadComponent>
+
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+
+                    <div class="w-100 text-center">
+                        <img src="@string.Concat(this.navigationmanager.BaseUri, "images/", this.applicationprovider._contextsite?.Favicon)" height="42" />
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </Authorized>
+    <NotAuthorized>
+
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+
+
+    [Parameter] public Moduleservice<Modulepreferences> Moduleparams { get; set; }
+
+    // Site model
+    public Applicationsite? site { get; set; }
+
+    // Brandmark
+    public string Brandmarkdropzoneelementid { get; set; } = "brandmark_dropzone_element_id";
+    public string Brandmarkinputfieldid { get; set; } = "brandmark_input_field_id";
+
+    // Favicon
+    public string Favicondropzoneelementid { get; set; } = "favicon_dropzone_element_id";
+    public string Faviconinputfieldid { get; set; } = "favicon_input_field_id";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        var client = this.ihttpclientfactory.CreateClient("Mihcelle.Hwavmvid.ServerApi.Unauthenticated");
+        this.site = await client.GetFromJsonAsync<Applicationsite>("api/site");
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+}

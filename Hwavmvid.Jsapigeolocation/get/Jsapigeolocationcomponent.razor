@@ -1,0 +1,114 @@
+﻿@namespace Mihcelle.Hwavmvid.Jsapigeolocation
+@inherits ComponentBase
+@implements IAsyncDisposable
+@inject Jsapigeolocationservice Jsapigeolocationservice
+
+@using System.Linq
+@using System.Collections.Generic
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+
+<div class="d-flex flex-wrap align-items-center">
+
+    @{
+        contextmap = Jsapigeolocationservice.Getmap(ComponentId);
+    }
+
+    @if (contextmap != null && contextmap.Item != null && contextmap.Item.latitude != null && contextmap.Item.longitude != null && contextmap.Item.accuracy != null)
+    {
+
+        <div id="@geolocationmapid" style="position:relative; width:412px; height:240px; background-image: url('/_content/mihcelle.hwavmvid.jsapigeoloaction/worldmapnews.png'); background-repeat: no-repeat; background-size: cover;"></div>
+
+        <div class="p-1">
+
+            <table class="table table-success">
+                <thead>
+                    <tr>
+                        <th scope="col">latitude</th>
+                        <th scope="col">longitude</th>
+                        <th scope="col">accuracy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="col">
+                            <div class="lead"><small>@contextmap.Item.latitude</small></div>
+                        </th>
+                        <th scope="col">
+                            <div class="lead"><small>@contextmap.Item.longitude</small></div>
+                        </th>
+                        <th scope="col">
+                            <div class="lead"><small>@contextmap.Item.accuracy</small></div>
+                        </th>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    }
+    
+</div>
+
+@code {
+
+    [Parameter] public int Getgeolocationcoordsintervall { get; set; } = 1000 * 10;
+
+    public string ComponentId { get; set; } = Guid.NewGuid().ToString().Replace("-", "_");
+    public string geolocationmapid { get; set; }
+    public Jsapigeolocationmap contextmap { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        this.Jsapigeolocationservice.OnUpdateUI += UpdateUI;
+
+        this.geolocationmapid = string.Concat("geolocationmapid", "-", this.ComponentId);
+        return base.OnInitializedAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await this.Jsapigeolocationservice.Initgeolocationservice();
+            await this.Jsapigeolocationservice.InitGeolocationMap(this.ComponentId, this.geolocationmapid);
+            await this.Jsapigeolocationservice.Getgeolocationpermissions(this.ComponentId);
+
+            try
+            {
+                await Task.Run(async () =>
+                {
+                    while (this.Jsapigeolocationservice.Getmap(this.ComponentId) != null)
+                    {
+                        await InvokeAsync(async () =>
+                        {
+                            await this.Jsapigeolocationservice.Getgeolocation(this.ComponentId);
+                            await Task.Delay(this.Getgeolocationcoordsintervall);
+                        });
+                    }
+                });
+            } catch (Exception exception) { Console.WriteLine(exception.Message); }
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public void UpdateUI()
+    {
+        InvokeAsync(() =>
+        {
+            this.StateHasChanged();
+        });
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        this.Jsapigeolocationservice.OnUpdateUI -= UpdateUI;
+
+        foreach (var item in this.Jsapigeolocationservice.Mapitems.ToList())
+        {
+            if (item.Jsmapreference != null)
+                await item.Jsmapreference.DisposeAsync();
+        }
+        this.Jsapigeolocationservice.Mapitems.Clear();
+    }
+}

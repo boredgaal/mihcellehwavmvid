@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<LangVersion>10.0</LangVersion>
+		<RazorLangVersion>3.0</RazorLangVersion>
+		<AssemblyName>BlazorDropdown</AssemblyName>
+		<OutputType>Library</OutputType>
+		<Version>1.0.0</Version>
+		<Product>BlazorDropdown</Product>
+		<authors>hwavmvid_tunstall</authors>
+		<Company>hwavmvid technologies</Company>
+		<copyright>hwavmvid corp.</copyright>
+		<PackageProjectUrl>https://mihcelle.hwavmvid.com/</PackageProjectUrl>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components" Version="7.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="7.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="7.0.2" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<SupportedPlatform Include="browser" />
+	</ItemGroup>
+
+</Project>

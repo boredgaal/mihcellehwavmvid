@@ -1,0 +1,30 @@
+﻿@namespace Mihcelle.Hwavmvid.Client.Authentication
+@inherits Authenticationbase
+
+@inject NavigationManager navigationmanager
+@inject IHttpClientFactory ihttpclientfactory
+@inject Applicationprovider applicationprovider
+
+<div class="logout">
+
+    <button type="button" @onclick="async () => await this.Logoutuser()" class="btn btn-sm btn-link">Logout @this.applicationprovider?._contextauth?.User?.Identity?.Name</button>
+
+</div>
+
+@code {
+
+    protected async Task Logoutuser()
+    {
+
+        try
+        {
+            var client = this.ihttpclientfactory.CreateClient("Mihcelle.Hwavmvid.ServerApi.Unauthenticated");
+            await client.GetAsync("logout");
+            this.navigationmanager.NavigateTo(navigationmanager.Uri, true);
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception.Message);
+        }
+    }
+}

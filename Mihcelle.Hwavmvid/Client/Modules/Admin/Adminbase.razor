@@ -1,0 +1,65 @@
+﻿@inherits ComponentBase
+
+@using Mihcelle.Hwavmvid.Modal
+@using Mihcelle.Hwavmvid.Client.Pages
+
+@inject Modalservice modalservice
+
+<AuthorizeView>
+    <Authorized>
+
+        <div>
+
+            <div class="d-flex flex-wrap bg-white mt-4">
+
+                <Modalcomponent ElementId="@this._adminmodalelementid">
+
+                    <Modalheader>
+
+                        <div class="bg-dark text-light text-center px-2 py-2">
+
+                            <div class="lead py-2">
+                                Admin / @_componenttype?.Name.ToString()
+                            </div>
+
+                        </div>
+
+                    </Modalheader>
+
+                    <Modalbody>
+
+                        <div class="bg-light text-dark px-2 py-4">
+
+                            <DynamicComponent Type="@_componenttype"></DynamicComponent>
+
+                        </div>
+
+                    </Modalbody>
+
+                    <Modalfooter>
+
+                        <button @onclick="(() => this.modalservice.HideModal(this._adminmodalelementid))" type="button" class="btn btn-sm btn-link float-end">Close settings</button>
+
+                    </Modalfooter>
+
+                </Modalcomponent>
+
+            </div>
+
+        </div>
+
+    </Authorized>
+    <NotAuthorized>
+
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+
+
+    [Parameter] public Type? _componenttype { get; set; }
+
+    [Parameter] public string? _adminmodalelementid { get; set; }
+
+}

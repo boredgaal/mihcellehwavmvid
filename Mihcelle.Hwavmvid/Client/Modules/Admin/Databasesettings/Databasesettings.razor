@@ -1,0 +1,64 @@
+﻿@inherits Modulebase
+@namespace Mihcelle.Hwavmvid.Modules.Databasesettings
+
+@inject IHttpClientFactory ihttpclientfactory
+@inject Applicationprovider applicationprovider
+
+@using Mihcelle.Hwavmvid.Client.Pages
+@using Mihcelle.Hwavmvid.Shared.Models
+@using Mihcelle.Hwavmvid.Client.Modules
+
+<AuthorizeView>
+    <Authorized>
+
+        <div class="container">
+            <div class="row align-items-center my-2">
+
+                <div class="col-lg-12">
+                    <div class="p-1 bg-light">
+
+                        @if (this.tenant != null)
+                        {
+                            <div class="input-group mb-3">
+                                <span class="input-group-text" id="tenant">Database connection</span>
+                                <input type="text" class="form-control" placeholder="@this.tenant.Databaseconnectionstring" aria-label="Tenant" aria-describedby="tenant">
+                            </div>
+                        }
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </Authorized>
+    <NotAuthorized>
+
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+
+
+    [Parameter] public Moduleservice<Modulepreferences> Moduleparams { get; set; }
+
+    public Applicationtenant tenant { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        try
+        {
+            var client = this.ihttpclientfactory?.CreateClient("Mihcelle.Hwavmvid.ServerApi.Unauthenticated");
+            this.tenant = await client.GetFromJsonAsync<Applicationtenant>(string.Concat("api/tenant/", this.applicationprovider._contextsite.Id));
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception.Message);
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+}

@@ -1,0 +1,153 @@
+﻿@namespace Mihcelle.Hwavmvid.Modules.ChatHubs
+@inherits ComponentBase
+@implements IDisposable 
+
+@inject NavigationManager NavigationManager
+@inject ChatHubService ChatHubService
+@inject Pagerservice<ChatHubUser> PagerServiceChatHubUser
+
+@using System.Linq
+@using Mihcelle.Hwavmvid.Modules.ChatHubs.Services
+@using Oqtane.ChatHubs.Extensions
+@using Oqtane.ChatHubs.Models
+@using Mihcelle.Hwavmvid.Pager
+@using Oqtane.ChatHubs.Constants
+@using Microsoft.AspNetCore.SignalR.Client
+@using Mihcelle.Hwavmvid.Client.Modules
+
+@if (ChatHubService.Connection != null && ChatHubService.Connection.State == HubConnectionState.Connected)
+{
+
+    var getItemsApiUrl = "api/chathub/GetUsers";
+                        
+    <PagerComponent ElementId="WasmHwavmvid.PagerUserlist" Class="WasmHwavmvid.PagerUserlist accordion" GetItemsApiUrl="@getItemsApiUrl" ItemsPerPage="@Oqtane.ChatHubs.Constants.ChatHubConstants.UserlistItems" ContextPageItems="@room.Users" TItemGeneric="@ChatHubUser" Context="user" ApiQueryId="@room.Id" Scrolling="@false">
+
+        <PagerItem>
+
+            @if (user.Id == ChatHubService.ConnectedUser.Id)
+            {
+                <div class="accordion-item" @key="user">
+                    <div class="accordion-header">
+                        <button type="button" OnClick="(e) => UserlistItem_Clicked(e, room, user)" class="accordion-button" data-bs-toggle="collapse" data-bs-target="#collapse-@user.Id" aria-expanded="@user.UserlistItemCollapsed">
+                            <strong class="align-middle" style="height: 16px;">@user.DisplayName</strong>
+                        </button>
+                    </div>
+                    <div id="collapse-@user.Id" class="accordion-collapse collapse show">
+                        <div class="accordion-body">
+                            <div class="card-text">
+                                <button type="button" class="btn btn-sm btn-link" @onclick="@(() => OpenProfile_Clicked(user.Id, room.Id))">Account Data</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="accordion-item" @key="user">
+                    <div class="accordion-header">
+                        <button type="button" OnClick="(e) => UserlistItem_Clicked(e, room, user)" class="accordion-button" data-bs-toggle="collapse" data-bs-target="#collapse-@user.Id" aria-expanded="@user.UserlistItemCollapsed">
+                            <span class="align-middle" style="height: 16px;">@user.DisplayName</span>
+                        </button>
+                    </div>
+
+                    <div id="collapse-@user.Id" class="accordion-collapse collapse">
+                        <div class="accordion-body">
+
+                            @if (!ChatHubService.IgnoredUsers.Any(item => item.ChatHubUserId == user.Id))
+                            {
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-link" @onclick="() => ChatHubService.IgnoreUser_Clicked(user.Id)">Ignore User</button>
+                                </div>
+                            }
+
+                            @if (!room.Moderators.Any(item => item.ChatHubUserId == user.Id))
+                            {
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-link" @onclick="() => ChatHubService.AddModerator_Clicked(user.Id, room.Id)">Add Modi</button>
+                                </div>
+                            }
+                            else
+                            {
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-link" @onclick="async () => await ChatHubService.RemoveModeratorAsync(user.Id, room.Id)">Delete Modi</button>
+                                </div>
+                            }
+
+                            @if (!room.WhitelistUsers.Any(item => item.ChatHubUserId == user.Id))
+                            {
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-link" @onclick="() => ChatHubService.AddWhitelistUser_Clicked(user.Id, room.Id)">Add Whitelist User</button>
+                                </div>
+                            }
+                            else
+                            {
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-link" @onclick="@(async () => await ChatHubService.RemoveWhitelistUser_Clicked(user.Id, room.Id))">Delete Whitelist User</button>
+                                </div>
+                            }
+
+                            @if (!room.BlacklistUsers.Any(item => item.ChatHubUserId == user.Id))
+                            {
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-link" @onclick="() => ChatHubService.AddBlacklistUser_Clicked(user.Id, room.Id)">Add Blacklist User</button>
+                                </div>
+                            }
+                            else
+                            {
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-link" @onclick="@(async () => await ChatHubService.RemoveBlacklistUser_Clicked(user.Id, room.Id))">Delete Blacklist User</button>
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </PagerItem>
+
+    </PagerComponent>
+
+}
+
+@code {
+
+    [Parameter] public ChatHubRoom room { get; set; }
+    [Parameter] public SettingsModal SettingsModalRef { get; set; }
+
+    public void OpenProfile_Clicked(string userId, string roomId)
+    {
+        this.SettingsModalRef.OpenDialogAsync();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.PagerServiceChatHubUser.OnRetrievedItems += RetrievedItems;
+        this.PagerServiceChatHubUser.OnError += Error;
+        await base.OnInitializedAsync();
+    }
+
+    public void RetrievedItems(List<ChatHubUser> obj, string apiQueryId)
+    {
+        if (this.room.Id == apiQueryId)
+        {
+            this.room.Users.AddRange(obj);
+            this.ChatHubService.RunUpdateUI();
+        }
+    }
+    public void Error(Exception exception, string apiQueryId)
+    {
+        if (this.room.Id == apiQueryId)
+        {
+            this.ChatHubService.HandleException(exception);
+        }
+    }
+
+    public void Dispose()
+    {
+        this.PagerServiceChatHubUser.OnRetrievedItems -= RetrievedItems;
+        this.PagerServiceChatHubUser.OnError -= Error;
+    }
+
+}

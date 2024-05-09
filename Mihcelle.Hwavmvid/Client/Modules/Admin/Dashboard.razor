@@ -1,0 +1,94 @@
+﻿@inherits ComponentBase
+
+@using Mihcelle.Hwavmvid.Modal
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Mihcelle.Hwavmvid.Client.Pages
+@using Mihcelle.Hwavmvid.Modules
+
+@inject Modalservice modalservice
+@inject IHttpClientFactory? ihttpclientfactory
+@inject Applicationprovider applicationprovider
+
+
+<AuthorizeView>
+    <Authorized>
+
+        @if (this.contextcomponenttype != null)
+        {
+            <Adminbase _adminmodalelementid="@adminmodalelementid" _componenttype="@contextcomponenttype"></Adminbase>
+        }
+
+        @if (this.applicationprovider._contextframeworkpackages != null && this.applicationprovider._contextframeworkpackages.Any())
+        {
+            <div>
+
+                <h4 class="lead fw-bold bg-dark text-white text-center"><small>Application framework modules inside</small></h4>
+
+                <div class="d-flex flex-wrap bg-white mt-4 position-relative" style="z-index: 1000">
+
+                    @foreach (var package in this.applicationprovider._contextframeworkpackages)
+                    {
+
+                        <div class="position-relative p-1" style="width: 150px; height: 150px;" id="@package.Id" draggable="true">
+                            <button @onclick="async() => await Opencontextmodule(Type.GetType(package.Assemblytype))" type="button" class="btn btn-light w-100 h-100 px-2 py-4 bg-light text-dark text text-centerborder border-dark rounded-0">
+                                <span class="display-4">@package.Icon.ToLower()</span><br />
+                                <small class="py-2 w-100" style="font-size: 0.8rem; position:absolute; left:0px; bottom:10px;">@package.Name</small>
+                            </button>
+                        </div>
+
+                    }
+
+                </div>
+
+            </div>
+        }
+
+    </Authorized>
+    <NotAuthorized>
+
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+
+
+    public string adminmodalelementid { get; set; } = "admin_modal_element_id";
+    public Type? contextcomponenttype { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var client = this.ihttpclientfactory.CreateClient("Mihcelle.Hwavmvid.ServerApi.Unauthenticated");
+        var items = await client.GetFromJsonAsync<List<Applicationmodulepackage>>("api/modulepackage/frameworkpackages");
+
+        this.contextcomponenttype = Type.GetType(items.FirstOrDefault().Assemblytype);
+        this.applicationprovider._contextframeworkpackages = items;
+
+        await base.OnInitializedAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        if (firstRender)
+        {
+            await this.modalservice.Initmodal();
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public async Task Opencontextmodule(Type componenttype)
+    {
+        
+        this.contextcomponenttype = componenttype;
+        await this.modalservice.ShowModal(this.adminmodalelementid);
+
+        await InvokeAsync(() =>
+        {
+            this.StateHasChanged();
+        });
+    }
+}

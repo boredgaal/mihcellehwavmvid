@@ -1,0 +1,148 @@
+﻿@namespace Mihcelle.Hwavmvid.Modules.Htmleditor
+@inherits Modulebase
+
+@using System.ComponentModel.DataAnnotations
+@using Mihcelle.Hwavmvid.Modal
+@using Mihcelle.Hwavmvid.Client.Modules
+
+@inject IHttpClientFactory ihttpclientfactory
+@inject NavigationManager navigationmanager
+@inject Modalservice modalservice
+
+<AuthorizeView Roles="@Mihcelle.Hwavmvid.Shared.Constants.Authentication.Hostrole">
+    <Authorized>
+
+        @if (this.editor != null)
+        {
+            <div>
+
+                <Modalcomponent ElementId="@this._htmleditormodalelementid">
+
+                    <Modalheader>
+
+                        <div class="bg-dark text-light text-center px-2 py-2">
+
+                            <div class="lead py-2">
+                                Htmleditor
+                            </div>
+
+                        </div>
+
+                    </Modalheader>
+
+                    <Modalbody>
+
+                        <div class="p-2 lead">
+
+                            <div>
+                                <strong><small>Edit html output</small></strong>
+                            </div>
+
+                            <textarea @bind="this.editor.Htmlstring" rows="14" cols="410" class="w-100" onclick="border border-dark"></textarea>
+
+                        </div>
+
+                    </Modalbody>
+
+                    <Modalfooter>
+
+                        <div class="float-end">
+
+                            <button type="button" @onclick="async () => await this.Savechanges()" class="btn btn-sm btn-link">
+                                Save changes
+                            </button>
+
+                            <button @onclick="(() => this.modalservice.HideModal(this._htmleditormodalelementid))" type="button" class="btn btn-sm btn-link">
+                                Close editor
+                            </button>
+
+                        </div>
+
+                    </Modalfooter>
+
+                </Modalcomponent>
+
+            </div>
+
+            <div class="position-relative py-2" style="min-height: 140px;">
+
+                <button @onclick="async() => await Opencontextmodule()" @onclick:stopPropagation=true type="button" class="btn btn-sm btn-link px-2 py-4 rounded-0" style="position: absolute; bottom: 4px; right: 4px;">
+                    <small class="py-2">Edit html</small>
+                </button>
+
+                <div>@((MarkupString)this.editor.Htmlstring)</div>
+
+            </div>
+        }
+
+    </Authorized>
+</AuthorizeView>
+
+
+@code {
+    
+    [Parameter] public Moduleservice<Modulepreferences> Moduleparams { get; set; }
+
+    public string _htmleditormodalelementid { get; set; } = Guid.NewGuid().ToString();
+    public Applicationhtmleditor? editor { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (this.editor == null && !string.IsNullOrEmpty(this.Moduleparams.Preferences.ModuleId))
+        {
+            try
+            {
+                this.editor = new Applicationhtmleditor()
+                    {
+                        Id = string.Empty,
+                        Moduleid = this.Moduleparams.Preferences.ModuleId,
+                        Htmlstring = string.Empty,
+                        Createdon = DateTime.Now,
+                    };
+
+                var client = this.ihttpclientfactory?.CreateClient("Mihcelle.Hwavmvid.ServerApi.Unauthenticated");
+                this.editor = await client.GetFromJsonAsync<Applicationhtmleditor?>(string.Concat("api/htmleditor/", this.Moduleparams.Preferences.ModuleId));
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
+        }
+
+        await base.OnParametersSetAsync();
+    }
+
+    public async Task Savechanges()
+    {
+        try
+        {
+            var client = this.ihttpclientfactory?.CreateClient("Mihcelle.Hwavmvid.ServerApi.Unauthenticated");
+            await client.PostAsJsonAsync<Applicationhtmleditor?>("api/htmleditor", this.editor);
+            this.navigationmanager.NavigateTo(navigationmanager.Uri, true);
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception.Message);
+        }
+    }
+
+    public async Task Opencontextmodule()
+    {
+
+        await this.modalservice.ShowModal(this._htmleditormodalelementid);
+
+        await InvokeAsync(() =>
+        {
+            this.StateHasChanged();
+        });
+    }
+
+    public class Applicationhtmleditor
+    {
+        public string Id { get; set; }
+        public string Moduleid { get; set; }
+        public string Htmlstring { get; set; }
+        public DateTime Createdon { get; set; }
+    }
+
+}

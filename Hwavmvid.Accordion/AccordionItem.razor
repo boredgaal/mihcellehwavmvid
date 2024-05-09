@@ -1,0 +1,51 @@
+﻿@namespace Mihcelle.Hwavmvid.Accordion
+
+<CascadingValue Value="this">
+
+    <div class="card">
+
+        <div class="card-header" id="headline-@this.Id.ToString()">
+            <h4 class="mb-0">
+                <button class="btn btn-link" id="headline-@this.Id.ToString()" data-toggle="collapse" data-target="#collapse-@this.Id.ToString()" aria-expanded="true" aria-controls="collapse-@this.Id.ToString()">
+                    @AccordionHeader
+                </button>
+            </h4>
+
+            <div id="collapse-@this.Id.ToString()" class="collapse show" aria-labelledby="headline-@this.Id.ToString()" data-parent="#@AccordionContainer.Id">
+                <div class="card-body">
+                    @AccordionBody
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</CascadingValue>
+
+@code {
+
+    [CascadingParameter] public AccordionContainer AccordionContainer { get; set; }
+
+    [Parameter] public RenderFragment AccordionHeader { get; set; }
+    [Parameter] public RenderFragment AccordionBody { get; set; }
+
+    public Guid Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.Id = Guid.NewGuid();
+        this.AccordionContainer.AddAccordionItem(this);
+        await base.OnInitializedAsync();
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            this.AccordionContainer.ActiveAccordionItem = this.AccordionContainer.AccordionItems.FirstOrDefault();
+        }
+
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+}

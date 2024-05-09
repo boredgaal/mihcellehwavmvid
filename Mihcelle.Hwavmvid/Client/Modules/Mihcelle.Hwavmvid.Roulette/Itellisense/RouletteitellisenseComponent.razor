@@ -1,0 +1,163 @@
+﻿@namespace Mihcelle.Hwavmvid.Modules.Roulette.Itellisense
+@inherits RouletteitellisenseComponentBase
+
+@using System
+@using System.Linq
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Mihcelle.Hwavmvid.Modules.Roulette
+@using Mihcelle.Hwavmvid.Modules.Roulette.Surface
+@using Mihcelle.Hwavmvid.Modules.Roulette.Shared.Enums
+@using Mihcelle.Hwavmvid.Modules.Roulette.Shared.Items
+@using Mihcelle.Hwavmvid.Modules.Roulette.Shared.Events
+@using Mihcelle.Hwavmvid.Modules.Roulette.Betoptions
+@using Mihcelle.Hwavmvid.Modules.Roulette.Coins
+@using Mihcelle.Hwavmvid.Modules.Roulette.Bets
+
+@inject RouletteitellisenseService? RouletteitellisenseService
+
+<link href="/roulette/hwavmvid.roulette.css" rel="stylesheet" />
+
+<style type="text/css">
+
+    .roulette-background {
+        background-image: url('/roulette/roulettelasvegas.png');
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: contain;
+        height: 800px !important;
+    }
+
+</style>
+
+<div class="mt-0 mt-sm-2 p-1 px-sm-3 py-sm-5 w-100 h-100 bg-dark border border-primary roulette-background">
+
+    <div class="w-100 h-100" style="background-color: rgba(255,255,255,0.8); overflow-y: scroll !important;">
+
+        <div class="container py-sm-4">
+
+            <div class="row g-1">
+
+                <div class="col-sm-4 col-md-4">
+
+                    <div>
+                        <RouletteComponent></RouletteComponent>
+                    </div>
+
+                </div>
+
+                <div class="col-sm-8 col-md-8">
+
+                    @if (this.RouletteitellisenseService != null)
+                    {
+                        <div class="row align-items-center">
+
+                            <div class="col-sm-12 p-0 text-center">
+                                <strong class="bg-primary text-light lead" style="font-size: 24px;">Total coins: @(this.RouletteitellisenseService?.ContextGameValue)</strong>
+                            </div>
+
+                        </div>
+                    }
+
+                    <div class="row">
+
+                        <div class="col-sm-12">
+                            <RoulettesurfaceComponent></RoulettesurfaceComponent>
+                        </div>
+
+                    </div>
+
+                    <div class="row g-1 p-0 px-sm-3 py-sm-1 justify-content-sm-center">
+
+                        @foreach (var item in RouletteBetoptionsService.Items)
+                        {
+                            <div class="col-sm-auto">
+                                <RouletteBetoptionsComponent Item="@(item)"></RouletteBetoptionsComponent>
+                            </div>
+                        }
+
+                    </div>
+
+                    <div class="row g-1 p-0 px-sm-3 py-sm-1 justify-content-sm-center align-items-center">
+
+                        <div class="col-sm-7">
+                            <div class="row g-1">
+
+                                @foreach (var item in RoulettecoinsService.CoinItems)
+                                {
+                                    <div class="col-sm-auto">
+                                        <RoulettecoinsComponent Item="@(item)"></RoulettecoinsComponent>
+                                    </div>
+                                }
+
+                            </div>
+                        </div>
+
+                        <div class="col-sm-5">
+                            <div class="row g-2">
+
+                                <div class="col-sm-auto justify-content-sm-right">
+
+                                    <RoulettecontrolComponent></RoulettecontrolComponent>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    @if (this.DroppedItem != null)
+                    {
+                        <div class="row g-1 p-0 px-sm-12 py-sm-1 justify-content-sm-center">
+
+                            @{
+                                string bet = "Placed bet: ";
+                                bet += this.DroppedItem.CoinItem.CurrencyAbbr + this.DroppedItem.CoinItem.Value;
+                                bet += " on ";
+                                bet += DroppedItem.SurfaceNumber != null ? DroppedItem.SurfaceNumber.Value : DroppedItem.BetoptionsItem.Value;
+                            }
+
+                            <div class="w-100 h-100 text-center">
+                                <strong>@(bet)</strong>
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+            <div class="row g-1">
+
+                <div class="col-sm-12 pt-5">
+
+                    @if (this.RouletteBetsService.BetItems.Any())
+                    {
+
+                        <div>
+
+                            @foreach (var item in RouletteBetsService.BetItems)
+                            {
+                                <RoulettebetsComponent Item="@(item)"></RoulettebetsComponent>
+                            }
+
+                        </div>
+
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+    
+    </div>
+
+</div>
+
+
+@code {
+    
+}

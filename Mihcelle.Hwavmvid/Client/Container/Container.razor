@@ -1,0 +1,59 @@
+﻿@inherits Containerbase
+
+@using Mihcelle.Hwavmvid.Client.Modules
+
+
+@if (this.applicationprovider?._contextcontainer != null && this.applicationprovider?._contextcontainercolumns != null && this.applicationprovider._contextcontainercolumns.Any())
+{
+
+    <div class="@this.applicationprovider?._contextcontainer.Containertype g-0" style="border: 2px dotted black">
+
+        <AuthorizeView Roles="Host">
+            <Authorized>
+
+                <div class="position-relative bg-secondary border-2 border-dark d-flex justify-content-end align-items-center w-100 h-100" style="min-height: 62px; padding: 5px;">
+
+                    <button @onclick="async() => await this.Setcontainertype()" type="button" class="btn btn-sm btn-secondary px-2 py-2 rounded-0">
+                        <small class="py-2">Update container width</small>
+                    </button>
+
+                </div>
+
+            </Authorized>
+        </AuthorizeView>
+
+        <div class="row g-0 align-items-center">
+
+            @foreach (var column in this.applicationprovider._contextcontainercolumns)
+            {
+
+                <div class="position-relative @column.Columnwidth" style="width: 100%; min-height: 140px;">
+
+                    @foreach (var module in column.Modules)
+                    {
+
+                        Type? componenttype = Type.GetType(module.Assemblytype);
+                        Type? modulesettingscomponenttype = Type.GetType(module.Settingstype);
+
+                        if (componenttype != null && modulesettingscomponenttype != null)
+                        {
+                            <Modulebasecomponent Moduleid="@module.Id" Componenttype="@componenttype" Containertype="@this.applicationprovider._contextcontainer.Containertype" Componentsettingstype="@modulesettingscomponenttype"></Modulebasecomponent>
+                        }
+
+                    }
+
+                    <div id="@column.Id" class="packagedropzone packagedropzone-@(column?.Id?.ToString())" />
+
+                </div>
+
+            }
+
+        </div>
+
+    </div>
+
+}
+
+@code {
+
+}

@@ -1,0 +1,69 @@
+﻿@namespace Mihcelle.Hwavmvid.Alerts
+
+@foreach(var item in Items)
+{
+    <div @key="item" class="alerts-item" style="position: @item.Position.ToString().ToLower();">
+        <div class="alerts-item-header">
+            @RenderHeadline(item.Headline)
+            @RenderCloseButton(item)
+        </div>
+        <div class="alerts-item-body">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-sm-3">@RenderImage(item)</div>
+                    <div class="col-sm-9">@RenderMessage(item)</div>
+                </div>
+
+                @if (item.ConfirmDialog == false)
+                {
+                    <div class="row">
+                        <div class="col-sm-6 offset-sm-3">
+                            @RenderOkButton(item)
+                        </div>
+                    </div>
+                }
+                @if (item.ConfirmDialog == true)
+                {
+                    <div class="row">
+                        <div class="col-sm-5 offset-sm-2 px-1">
+                            @RenderConfirmButton(item)
+                        </div>
+                        <div class="col-sm-5 px-1">
+                            @RenderDenyButton(item)
+                        </div>
+                    </div>
+                }
+
+            </div>
+
+        </div>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public RenderFragment<string> RenderHeadline { get; set; }
+
+    [Parameter]
+    public RenderFragment<AlertsModel> RenderCloseButton { get; set; }
+
+    [Parameter]
+    public RenderFragment<AlertsModel> RenderImage { get; set; }
+
+    [Parameter]
+    public RenderFragment<AlertsModel> RenderMessage { get; set; }
+
+    [Parameter]
+    public RenderFragment<AlertsModel> RenderOkButton { get; set; }
+
+    [Parameter]
+    public RenderFragment<AlertsModel> RenderConfirmButton { get; set; }
+
+    [Parameter]
+    public RenderFragment<AlertsModel> RenderDenyButton { get; set; }
+
+    [Parameter]
+    public IReadOnlyList<AlertsModel> Items { get; set; }
+
+}

@@ -1,0 +1,50 @@
+﻿@namespace Mihcelle.Hwavmvid.Client.Authentication
+@inherits Authenticationbase
+
+@inject NavigationManager navigationmanager
+@inject IHttpClientFactory ihttpclientfactory
+
+
+<div class="registration">
+
+    <div class="input-group mb-3">
+      <span class="input-group-text" id="registration-username">@@</span>
+      <input type="text" @bind-value="this.Applicationuser.UserName" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="registration-username">
+    </div>
+
+    <div class="input-group mb-3">
+      <span class="input-group-text" id="registration-email">@@</span>
+      <input type="text" @bind-value="this.Applicationuser.Email" class="form-control" placeholder="Email" aria-label="Email" aria-describedby="registration-email">
+    </div>
+
+    <div class="input-group mb-3">
+      <span class="input-group-text" id="registration-password">@@</span>
+      <input type="text" @bind-value="this.Applicationuser.PasswordHash" class="form-control" placeholder="Password" aria-label="Password" aria-describedby="registration-password">
+    </div>
+
+    <button type="button" @onclick="async () => await this.Registeruser()" class="btn btn-sm btn-primary">Send data</button>
+
+</div>
+
+
+@code {
+
+
+    public Applicationuser Applicationuser { get; set; } = new Applicationuser();
+
+    protected async Task Registeruser()
+    {
+
+        try
+        {
+            var client = this.ihttpclientfactory.CreateClient("Mihcelle.Hwavmvid.ServerApi.Unauthenticated");
+            await client.GetAsync("registration/" + this.Applicationuser.UserName + "/" + this.Applicationuser.Email + "/" + this.Applicationuser.PasswordHash);
+            this.navigationmanager.NavigateTo(navigationmanager.Uri, true);
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception.Message);
+        }
+    }
+
+}

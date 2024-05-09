@@ -1,0 +1,114 @@
+﻿@inherits Mainlayoutbase
+@namespace Mihcelle.Hwavmvid.Client.Installation
+
+
+<div class="container p-2 p-sm-5">
+    
+    <div class="row align-items-center">
+        <div class="col-md-6 offset-md-3">
+            <img src="@(string.Concat(navigationmanager.BaseUri, "hwavmvidtechnologies.png"))" />
+        </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-6 offset-md-3">
+
+            <div class="p-2 p-sm-4 mb-2 bg-dark text-white">
+
+                <strong>after installation application restart is required</strong><br />
+                <small style="font-size: 0.8rem;">
+                    delete your site cookies if you run in trouble<br />
+                    open nuget package manager console for manual installation<br />
+                    run: add-migration [name]<br />
+                    run: update-database<br />
+                </small>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text" id="sqlserverinstance">Sql server instance name</span>
+                <input type="text" class="form-control" @bind-value="this.installationmodel.Sqlserverinstance" placeholder="@this.installationmodel.Sqlserverinstance" aria-label="SQL Server Instance" aria-describedby="sqlserverinstance">
+            </div>
+
+            <div class="input-group mb-3">
+              <span class="input-group-text" id="database">Database name</span>
+              <input type="text" class="form-control" @bind-value="this.installationmodel.Databasename" placeholder="@this.installationmodel.Databasename" aria-label="Database name" aria-describedby="database">
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text" id="databaseowner">Database owner</span>
+                <input type="text" class="form-control" @bind-value="this.installationmodel.Databaseowner" placeholder="@this.installationmodel.Databaseowner" aria-label="Database owner" aria-describedby="databaseowner">
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">Database owner password</span>
+                <input type="@this.databaseownerinputfieldtype" class="form-control" @bind-value="this.installationmodel.Databaseownerpassword" aria-label="Database owner password">
+                <button type="button" class="btn btn-sm btn-primary" style="min-width: 88px;" @onclick="() => Toggledatabaseownderpassword()">
+                    👁
+                </button>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text" id="administratorusername">Administrator username</span>
+                <input type="text" class="form-control bg-dark text-light" placeholder="@this.installationmodel.Hostusername" aria-label="Administrator username" aria-describedby="administratorusername" disabled>
+            </div>
+
+            <div class="input-group mb-3">
+                <span class="input-group-text">Administrator password</span>
+                <input type="@this.administratorpasswordinputfieldtype" class="form-control" @bind-value="this.installationmodel.Hostpassword" aria-label="Administrator password">
+                <button type="button" class="btn btn-sm btn-primary" style="min-width: 88px;" @onclick="() => Toggleadministratorpassword()">
+                    👁
+                </button>
+            </div>
+
+            <div class="input-group mb-3">
+                <div class="input-group-text">
+                    <input class="form-check-input mt-0" type="checkbox" checked="checked" aria-label="Ssl connection enabled by default" disabled>
+                </div>
+
+                <input type="text" class="form-control bg-dark text-light" placeholder="Ssl connection enabled by default" aria-label="Ssl connection enabled by default" disabled>
+            </div>
+
+            <button type="button" @onclick="async () => await this.Install()" class="btn btn-sm btn-primary">Install application</button>
+
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+
+
+    protected Installationmodel installationmodel { get; set; } = new Installationmodel();
+
+    protected string databaseownerinputfieldtype { get; set; } = "password";
+    protected void Toggledatabaseownderpassword()
+    {
+        this.databaseownerinputfieldtype = this.databaseownerinputfieldtype == "text" ? "password" : this.databaseownerinputfieldtype == "password" ? "text" : "password";
+        this.StateHasChanged();
+    }
+
+    protected string administratorpasswordinputfieldtype { get; set; } = "password";
+    protected void Toggleadministratorpassword()
+    {
+        this.administratorpasswordinputfieldtype = this.administratorpasswordinputfieldtype == "text" ? "password" : this.administratorpasswordinputfieldtype == "password" ? "text" : "password";
+        this.StateHasChanged();
+    }
+
+    protected async Task Install()
+    {
+
+        try
+        {
+            var client = this.ihttpclientfactory.CreateClient("Mihcelle.Hwavmvid.ServerApi.Unauthenticated");
+            await client.PostAsJsonAsync("api/installation", this.installationmodel);
+            this.navigationmanager.NavigateTo(this.navigationmanager.BaseUri, true);
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception.Message);
+        }
+    }
+
+}

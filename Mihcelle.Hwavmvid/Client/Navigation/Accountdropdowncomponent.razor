@@ -1,0 +1,39 @@
+﻿@namespace Mihcelle.Hwavmvid.Client
+@inherits Mainlayoutbase
+
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Microsoft.AspNetCore.Http
+@using Mihcelle.Hwavmvid.Client.Authentication
+
+
+<AuthorizeView>
+    <Authorized>
+
+        <div class="py-3" style="max-width: 410px;">
+            <Logoutcomponent></Logoutcomponent>
+        </div>
+
+    </Authorized>
+    <NotAuthorized>
+
+        <div class="py-3" style="max-width: 410px;">
+            <h5 class="lead">Registration</h5>
+            <Registrationcomponent></Registrationcomponent>
+        </div>
+
+        <div class="py-3" style="max-width: 410px;">
+            <h5 class="lead">Login</h5>
+            <Logincomponent></Logincomponent>
+        </div>
+
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+}

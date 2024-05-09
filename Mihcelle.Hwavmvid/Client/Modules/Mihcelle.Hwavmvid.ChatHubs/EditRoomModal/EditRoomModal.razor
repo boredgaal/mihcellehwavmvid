@@ -1,0 +1,89 @@
+﻿@namespace Mihcelle.Hwavmvid.Modules.ChatHubs
+@inherits EditRoomModalBase
+
+@using Mihcelle.Hwavmvid.Fileupload
+@using BlazorSelect
+@using Mihcelle.Hwavmvid.ColorPicker
+@using Mihcelle.Hwavmvid.Modal
+@using Mihcelle.Hwavmvid.Devices
+
+<Modalcomponent ElementId="@EditRoomModalElementId">
+
+    <Modalheader>
+        <div class="p-2 bg-primary">
+            <strong class="text-light">EditRoom</strong>
+        </div>
+    </Modalheader>
+    <Modalbody>
+
+        <div class="p-2 bg-white text-dark">
+
+            <div class="mb-2">
+                <label for="title" class="form-label">Title</label>
+                <input type="text" class="form-control" id="title" @bind="@title">
+            </div>
+            <div class="mb-2">
+                <label for="content" class="form-label">Content</label>
+                <textarea class="form-control" id="content" rows="3" @bind="@content"></textarea>
+            </div>
+            <div class="mb-2">
+                <label for="backgroundcolor" class="form-label">Backgroundcolor</label>
+                <BlazorSelectComponent SelectionItems="@ColorPickerSelectionItems" SelectedItem="@ColorPickerActiveType.ToString()" SelectEvent="@ColorPicker_OnSelect"></BlazorSelectComponent>
+                <ColorPickerComponent ContextColor="@backgroundcolor" ColorPickerType="@ColorPickerActiveType"></ColorPickerComponent>
+            </div>
+            <div class="mb-2">
+                <label for="type" class="form-label">Type</label>
+                <BlazorSelectComponent SelectionItems="@SelectionItems" SelectedItem="@type" SelectEvent="@OnSelect"></BlazorSelectComponent>
+            </div>
+            <div class="mb-2">
+                <label for="image" class="form-label">Image</label>
+                @if (!string.IsNullOrEmpty(imageUrl))
+                {
+                    <img class="img-thumbnail" width="200" height="200" src="@string.Format("{0}/", Oqtane.ChatHubs.Constants.ChatHubConstants.RoomImagesPath, "/{1}", NavigationManager.BaseUri, imageUrl)" alt="Profile Image" />
+                }
+
+                @{
+                    Dictionary<string, string> headers = new Dictionary<string, string>();
+                    headers.Add("roomid", this.roomId.ToString());
+
+                    var url = string.Concat("api/chathub", "/postroomimageupload");
+                }
+
+                <FileUploadComponent ApiUrl="@url" FileUploadHeaders="@headers" InputFileId="@FileUploadInputFileElementId" DropzoneElementId="@FileUploadDropzoneContainerElementId"></FileUploadComponent>
+            </div>
+            <div class="mb-2">
+                @if(AudioDefaultDevice != null && 
+                    MicrophoneDefaultDevice != null && 
+                    WebcamDefaultDevice != null)
+                {
+                    <DevicesComponent Id="@this.roomId.ToString()" AudioDefaultDevice="@AudioDefaultDevice" MicrophoneDefaultDevice="@MicrophoneDefaultDevice" WebcamDefaultDevice="@WebcamDefaultDevice"></DevicesComponent>
+                }
+            </div>
+
+        </div>
+
+    </Modalbody>
+    <Modalfooter>
+
+        <div class="p-2 text-end">
+
+            @if (string.IsNullOrEmpty(roomId))
+            {
+                <button type="button" class="btn btn-sm btn-success" @onclick="@(() => CreateRoom())">Create room</button>
+            }
+            @if (!string.IsNullOrEmpty(roomId))
+            {
+                <button type="button" class="btn btn-sm btn-success" @onclick="@(() => EditRoom())">Edit room</button>
+            }
+
+            <button type="button" class="btn btn-sm btn-secondary" @onclick="@(() => CloseModal())">Cancel</button>
+
+        </div>
+
+    </Modalfooter>
+
+</Modalcomponent>
+
+@code {
+
+}

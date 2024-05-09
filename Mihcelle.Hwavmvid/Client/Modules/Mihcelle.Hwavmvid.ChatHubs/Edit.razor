@@ -1,0 +1,70 @@
+﻿@namespace Mihcelle.Hwavmvid.Modules.ChatHubs
+
+@using Mihcelle.Hwavmvid.Fileupload
+@using BlazorSelect
+@using Mihcelle.Hwavmvid.ColorPicker
+
+@inherits EditBase
+
+<table class="form-group">
+    <tr>
+        <td>
+            <label for="Title" class="control-label">Title: </label>
+        </td>
+        <td>
+            <input type="text" class="form-control" @bind="@title" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Content" class="control-label">Content: </label>
+        </td>
+        <td>
+            <textarea class="form-control" @bind="@content" cols="40" rows="5"></textarea>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="BackgroundColor" class="control-label">Background Color: </label>
+        </td>
+        <td>
+            <BlazorSelectComponent SelectionItems="@ColorPickerSelectionItems" SelectedItem="@ColorPickerActiveType.ToString()" SelectEvent="@ColorPicker_OnSelect"></BlazorSelectComponent>
+            <ColorPickerComponent ContextColor="@backgroundcolor" ColorPickerType="@ColorPickerActiveType"></ColorPickerComponent>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Type" class="control-label">Type: </label>
+        </td>
+        <td>
+            <BlazorSelectComponent SelectionItems="@SelectionItems" SelectedItem="@type" SelectEvent="@OnSelect"></BlazorSelectComponent>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="Content" class="control-label">Image: </label>
+        </td>
+        <td>
+            @if (!string.IsNullOrEmpty(imageUrl))
+            {
+                <img class="img-thumbnail" width="200" height="200" src="@string.Format("{0}/modules/oqtane.chathubs/images/rooms/{1}", NavigationManager.BaseUri, imageUrl)" alt="Profile Image" />
+            }
+
+            @{
+                Dictionary<string, string> headers = new Dictionary<string, string>();
+                headers.Add("roomid", this.roomId.ToString());
+
+                var url = string.Concat(NavigationManager.BaseUri.Substring(0, NavigationManager.BaseUri.LastIndexOf('/')), this.ChatHubService.ChatHubControllerApiUrl, "/postroomimageupload");
+            }
+
+            <FileUploadComponent ApiUrl="@url" FileUploadHeaders="@headers" InputFileId="@FileUploadInputFileElementId" DropzoneElementId="@FileUploadDropzoneContainerElementId"></FileUploadComponent>
+
+            <br />
+        </td>
+    </tr>
+</table>
+<button type="button" class="btn btn-success" @onclick="@SaveRoom">Save</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<br />
+<br />
+<AuditInfo CreatedBy="@createdby" CreatedOn="@createdon" ModifiedBy="@modifiedby" ModifiedOn="@modifiedon"></AuditInfo>

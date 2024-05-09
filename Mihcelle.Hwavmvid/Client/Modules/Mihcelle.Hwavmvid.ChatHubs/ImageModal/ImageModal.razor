@@ -1,0 +1,41 @@
+﻿@namespace Mihcelle.Hwavmvid.Modules.ChatHubs
+
+@inherits ImageModalBase
+
+@using Mihcelle.Hwavmvid.Modal
+@using Oqtane.ChatHubs.Constants
+
+<Modalcomponent ElementId="@ImageModalElementId">
+
+    <Modalheader>
+        <div class="p-2 bg-primary text-light">
+            <strong>Image Uploads</strong>
+        </div>
+    </Modalheader>
+
+    <Modalbody>
+        @if (Message != null && Message.Photos != null)
+        {
+
+            <div class="bg-light py-sm-4 px-sm-1">
+                @foreach (var photo in Message.Photos)
+                {
+                    <div class="position-relative">
+                        <div class="position-absolute" style="top: 10px; right: 10px;">
+                            <strong>Posted by @Message.User?.DisplayName on @Message.CreatedOn.ToShortTimeString()</strong>
+                        </div>
+                        <img class="img-fluid" src="@string.Format("{0}/{1}/{2}", NavigationManager.BaseUri, ChatHubConstants.UploadImagesPath, photo.Source)" />
+                    </div>
+                }
+            </div>
+
+        }
+    </Modalbody>
+
+    <Modalfooter>
+        <div class="my-3 p-2 float-end">
+            <button type="button" class="btn btn-link" @onclick="() => CloseDialogClickedAsync()">Dialog schließen</button>
+        </div>
+    </Modalfooter>
+
+</Modalcomponent>

@@ -1,0 +1,22 @@
+[
+  {
+    "outputFileName": "wwwroot/alerts.min.css",
+    "inputFiles": [
+      "alerts.css"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/alerts.min.js",
+    "inputFiles": [
+      "alerts.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  }
+]
