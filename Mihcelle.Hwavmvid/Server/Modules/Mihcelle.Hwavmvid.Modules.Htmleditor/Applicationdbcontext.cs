@@ -64,7 +64,7 @@ namespace Mihcelle.Hwavmvid.Modules.Htmleditor
                     string htmlstring = $"<div class=\"row\">\n" + 
                                             
                                             $"<div class=\"col-sm-4\">\n" +
-                                                $"\t<img src=\"https://mihcelle.hwavmvid.com:5001/images/appfavicon.ico\" title=\"mihcellehwavmvid\" alt=\"whenever mihcellehwavmvid\" />\n" +
+                                                $"\t<img src=\"/west_virginia.png\" title=\"mihcellehwavmvid\" alt=\"whenever mihcellehwavmvid\" />\n" +
                                             $"</div>\n" +
 
                                             $"<div class=\"col-sm-8\">\n" +
