@@ -33,7 +33,7 @@
 
         <div class="medialibrary">
 
-            <div class="container g-0">
+            <div class="container">
 
                 @{
                     var getItemsApiUrl = string.Concat(this.navigationmanager?.BaseUri, "api/mediafile");
@@ -42,7 +42,7 @@
                 @if (this.applicationprovider?._contextsite != null)
                 {
 
-                    <PagerComponent ApiQueryId="@this.applicationprovider?._contextsite?.Id" HubConnectionId="@string.Empty" ElementId="Mihcellehwavmvidmedialibrary" GetItemsApiUrl="@getItemsApiUrl" ContextPageItems="@this.mediaitems" Context="contextitem" ItemsPerPage="24" TItemGeneric="@Applicationmediafile" Class="row g-2 align-items-center bg-primary" Scrolling="@false">
+                    <PagerComponent ApiQueryId="@this.applicationprovider?._contextsite?.Id" HubConnectionId="@string.Empty" ElementId="Mihcellehwavmvidmedialibrary" GetItemsApiUrl="@getItemsApiUrl" ContextPageItems="@this.mediaitems" Context="contextitem" ItemsPerPage="12" TItemGeneric="@Applicationmediafile" Class="row align-items-center bg-transparent" Scrolling="@false">
                         <PagerItem>
 
                             <div class="col-lg-2" @onclick="() => copytoclipboard(contextitem)">
@@ -50,7 +50,6 @@
                                 <img class="img-fluid" src="@(string.Concat(this.navigationmanager?.BaseUri, "/medialibrary/", contextitem.Filename))" />
 
                             </div>
-
 
                         </PagerItem>
                     </PagerComponent>

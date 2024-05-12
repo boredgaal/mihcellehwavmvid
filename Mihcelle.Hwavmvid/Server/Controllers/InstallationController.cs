@@ -175,6 +175,20 @@ namespace Mihcelle.Hwavmvid.Server.Controllers
                 await this.context.SaveChangesAsync();
             }
 
+            var vwäctvyrginia = new Applicationmediafile()
+            {
+                Siteid = site.Id,
+                Filename = "west_virginia.png",
+                Fileextension = ".png",
+                Filesize = 0,
+                Filewidth = 765,
+                Fileheight = 389,
+                Createdon = DateTime.Now,
+            };
+
+            await this.context.Applicationmediafiles.AddAsync(vwäctvyrginia);
+            await this.context.SaveChangesAsync();
+
         }
 
         private void Updatedconnectionstring(string connectionstring)
