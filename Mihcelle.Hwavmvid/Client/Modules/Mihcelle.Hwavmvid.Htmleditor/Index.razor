@@ -32,18 +32,21 @@
 
                     <Modalbody>
 
-                        <ul class="nav nav-tabs" id="myTab" role="tablist">
-                            <li class="nav-item" role="htmleditor">
-                                <button class="nav-link active" id="html-tab" data-bs-toggle="tab" data-bs-target="#html" type="button" role="tab" aria-controls="html" aria-selected="true">html</button>
+                        <ul class="nav nav-tabs" id="@htmleditortabsnavigationid" role="tablist">
+
+                            <li class="nav-item" role="@htmleditortabsnavigationid">
+                                <button class="nav-link active" id="@this.htmltabid" data-bs-toggle="tab" data-bs-target="#@this.htmltabcontrolid" type="button" role="tab" aria-controls="@this.htmltabcontrolid" aria-selected="true">html</button>
                             </li>
-                            <li class="nav-item" role="htmleditor">
-                                <button class="nav-link" id="assccii-tab" data-bs-toggle="tab" data-bs-target="#assccii" type="button" role="tab" aria-controls="assccii" aria-selected="false">assccii</button>
+
+                            <li class="nav-item" role="@htmleditortabsnavigationid">
+                                <button class="nav-link" id="@this.asscciitabid" data-bs-toggle="tab" data-bs-target="#@this.asscciitabcontrolid" type="button" role="tab" aria-controls="@this.asscciitabcontrolid" aria-selected="false">assccii</button>
                             </li>
+
                         </ul>
 
                         <div class="tab-content">
 
-                            <div class="tab-pane active" id="html" role="tabpanel" aria-labelledby="html-tab">
+                            <div class="tab-pane active" id="@this.htmltabcontrolid" role="tabpanel" aria-labelledby="@this.htmltabid">
 
                                 <div class="p-2 lead">
 
@@ -57,7 +60,7 @@
 
                             </div>
 
-                            <div class="tab-pane" id="assccii" role="tabpanel" aria-labelledby="assccii-tab">
+                            <div class="tab-pane" id="@this.asscciitabcontrolid" role="tabpanel" aria-labelledby="@this.asscciitabid">
 
                                 <div class="p-2 lead">
 
@@ -117,6 +120,23 @@
     public string _htmleditormodalelementid { get; set; } = Guid.NewGuid().ToString();
     public Applicationhtmleditor? editor { get; set; }
     public string? bytestring { get; set; }
+
+    public string htmleditortabsnavigationid { get; set; }
+    public string htmltabid { get; set; }
+    public string asscciitabid { get; set; }
+    public string htmltabcontrolid { get; set; }
+    public string asscciitabcontrolid { get; set; }
+
+    protected override void OnInitialized()
+    {
+        this.htmleditortabsnavigationid = string.Concat("htmleditor-", Guid.NewGuid().ToString()).Replace("_", " - ");
+        this.htmltabid = string.Concat("htmleditor-", Guid.NewGuid().ToString()).Replace("_", " - ");
+        this.asscciitabid = string.Concat("htmleditor-", Guid.NewGuid().ToString()).Replace("_", " - ");
+        this.htmltabcontrolid = string.Concat("htmleditor-", Guid.NewGuid().ToString()).Replace("_", " - ");
+        this.asscciitabcontrolid = string.Concat("htmleditor-", Guid.NewGuid().ToString()).Replace("_", " - ");
+
+        base.OnInitialized();
+    }
 
     protected override async Task OnParametersSetAsync()
     {
