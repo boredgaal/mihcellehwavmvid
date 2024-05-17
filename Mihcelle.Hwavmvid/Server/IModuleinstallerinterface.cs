@@ -6,6 +6,7 @@ namespace Mihcelle.Hwavmvid.Server
     {
 
         Task Install();
+        Task Installed(Applicationmodulepackage installedmodulepackage);
         Task Deinstall();
         Task Removemodule(string id);
         Applicationmodulepackage applicationmodulepackage { get; }

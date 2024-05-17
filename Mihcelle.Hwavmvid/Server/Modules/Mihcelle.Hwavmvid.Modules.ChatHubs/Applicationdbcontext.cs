@@ -250,6 +250,8 @@ namespace Mihcelle.Hwavmvid.Modules.ChatHubs
             }
         }
 
+        public async Task Installed(Applicationmodulepackage installedmodulepackage) { }
+
         public async Task Deinstall()
         {
             await this.Database.RollbackTransactionAsync();
@@ -261,6 +263,7 @@ namespace Mihcelle.Hwavmvid.Modules.ChatHubs
             {
                 var package = new Applicationmodulepackage()
                 {
+                    Id = Guid.NewGuid().ToString(),
                     Name = "ChatHubs",
                     Version = "1.0.0",
                     Icon = "V",

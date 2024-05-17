@@ -43,6 +43,8 @@ namespace Mihcelle.Hwavmvid.Modules.Blackjack
             }
         }
 
+        public async Task Installed(Applicationmodulepackage installedmodulepackage) { }
+
         public async Task Deinstall()
         {
             await this.Database.RollbackTransactionAsync();
@@ -54,6 +56,7 @@ namespace Mihcelle.Hwavmvid.Modules.Blackjack
             {
                 var package = new Applicationmodulepackage()
                 {
+                    Id = Guid.NewGuid().ToString(),
                     Name = "Blackjack",
                     Version = "1.0.0",
                     Icon = "C",

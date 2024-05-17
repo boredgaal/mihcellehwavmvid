@@ -8,7 +8,7 @@
       },
       "dotnetRunMessages": true,
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
-      "applicationUrl": "http://mihcelle.hwavmvid.com:5120"
+      "applicationUrl": "http://mihcelle.hwavmvid.com:5001"
     },
     "https": {
       "commandName": "Project",
@@ -18,12 +18,12 @@
       },
       "dotnetRunMessages": true,
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
-      "applicationUrl": "https://mihcelle.hwavmvid.com:5001;http://mihcelle.hwavmvid.com:5120"
+      "applicationUrl": "https://mihcelle.hwavmvid.com:5001;http://mihcelle.hwavmvid.com:5004"
     },
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "mihcelle.hwavmvid.com:5120/",
+      "launchUrl": "mihcelle.hwavmvid.com:5004/",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
@@ -31,15 +31,15 @@
     }
   },
   "iisExpress": {
-    "applicationUrl": "http://mihcelle.hwavmviid.com:4707",
-    "sslPort": 44303
+    "applicationUrl": "http://mihcelle.hwavmviid.com:5004",
+    "sslPort": 5001
   },
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "mihcelle.hwavmvid.com:5120/",
-      "sslPort": 44354
+      "applicationUrl": "mihcelle.hwavmvid.com:5004/",
+      "sslPort": 5001
     }
   }
 }

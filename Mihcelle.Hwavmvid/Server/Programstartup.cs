@@ -41,7 +41,8 @@ namespace Mihcelle.Hwavmvid
                                     {
 
                                         await moduleinstaller.Install();
-                                        dbcontext.Applicationmodulepackages.Add(package);
+                                        await dbcontext.Applicationmodulepackages.AddAsync(package);
+                                        await moduleinstaller.Installed(package);
                                         await dbcontext.SaveChangesAsync();
 
                                     }

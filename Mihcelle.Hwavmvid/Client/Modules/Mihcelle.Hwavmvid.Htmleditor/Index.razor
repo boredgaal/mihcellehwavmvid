@@ -12,7 +12,7 @@
 <AuthorizeView Roles="@Mihcelle.Hwavmvid.Shared.Constants.Authentication.Hostrole">
     <Authorized>
 
-        @if (this.editor != null)
+        @if (this.editor != null && !string.IsNullOrEmpty(this.bytestring))
         {
             <div>
 
@@ -32,13 +32,44 @@
 
                     <Modalbody>
 
-                        <div class="p-2 lead">
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                            <li class="nav-item" role="htmleditor">
+                                <button class="nav-link active" id="html-tab" data-bs-toggle="tab" data-bs-target="#html" type="button" role="tab" aria-controls="html" aria-selected="true">html</button>
+                            </li>
+                            <li class="nav-item" role="htmleditor">
+                                <button class="nav-link" id="assccii-tab" data-bs-toggle="tab" data-bs-target="#assccii" type="button" role="tab" aria-controls="assccii" aria-selected="false">assccii</button>
+                            </li>
+                        </ul>
 
-                            <div>
-                                <strong><small>Edit html output</small></strong>
+                        <div class="tab-content">
+
+                            <div class="tab-pane active" id="html" role="tabpanel" aria-labelledby="html-tab">
+
+                                <div class="p-2 lead">
+
+                                    <div>
+                                        <strong><small>Edit html output</small></strong>
+                                    </div>
+
+                                    <textarea @bind="this.editor.Htmlstring" rows="14" cols="410" class="w-100" onclick="border border-dark"></textarea>
+
+                                </div>
+
                             </div>
 
-                            <textarea @bind="this.editor.Htmlstring" rows="14" cols="410" class="w-100" onclick="border border-dark"></textarea>
+                            <div class="tab-pane" id="assccii" role="tabpanel" aria-labelledby="assccii-tab">
+
+                                <div class="p-2 lead">
+
+                                    <div>
+                                        <strong><small>Edit html in bytes asscie format</small></strong>
+                                    </div>
+
+                                    <textarea @bind="this.bytestring" rows="14" cols="410" class="w-100" onclick="border border-dark"></textarea>
+
+                                </div>
+
+                            </div>
 
                         </div>
 
@@ -80,11 +111,12 @@
 
 
 @code {
-    
+
     [Parameter] public Moduleservice<Modulepreferences> Moduleparams { get; set; }
 
     public string _htmleditormodalelementid { get; set; } = Guid.NewGuid().ToString();
     public Applicationhtmleditor? editor { get; set; }
+    public string? bytestring { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -93,15 +125,29 @@
             try
             {
                 this.editor = new Applicationhtmleditor()
-                    {
-                        Id = string.Empty,
-                        Moduleid = this.Moduleparams.Preferences.ModuleId,
-                        Htmlstring = string.Empty,
-                        Createdon = DateTime.Now,
-                    };
+                {
+                    Id = string.Empty,
+                    Moduleid = this.Moduleparams.Preferences.ModuleId,
+                    Htmlstring = string.Empty,
+                    Createdon = DateTime.Now,
+                };
 
                 var client = this.ihttpclientfactory?.CreateClient("Mihcelle.Hwavmvid.ServerApi.Unauthenticated");
                 this.editor = await client.GetFromJsonAsync<Applicationhtmleditor?>(string.Concat("api/htmleditor/", this.Moduleparams.Preferences.ModuleId));
+
+
+                // asscii things || 10_backslash || 60_n || 1060_\n || 1088_\t || assccii chars &#010; &#nbsp;
+                string tempbytestream = string.Empty;
+                for (var y = 0; y < this.editor?.Htmlstring.Count(); y++)
+                {
+                    char asscciiitem = this.editor.Htmlstring.Skip(y).FirstOrDefault();
+                    tempbytestream += Convert.ToByte(asscciiitem);
+                    tempbytestream += "\\";
+                }
+
+                this.bytestring = tempbytestream;
+                this.bytestring = this.bytestring?.Replace("1060", "\n");
+                this.bytestring = this.bytestring?.Replace("8888", "\t");
             }
             catch (Exception exception)
             {
