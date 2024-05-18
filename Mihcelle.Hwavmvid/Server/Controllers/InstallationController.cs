@@ -189,6 +189,20 @@ namespace Mihcelle.Hwavmvid.Server.Controllers
             await this.context.Applicationmediafiles.AddAsync(vwäctvyrginia);
             await this.context.SaveChangesAsync();
 
+            var delarewarecity = new Applicationmediafile()
+            {
+                Siteid = site.Id,
+                Filename = "delaware_city.png",
+                Fileextension = ".png",
+                Filesize = 0,
+                Filewidth = 765,
+                Fileheight = 389,
+                Createdon = DateTime.Now,
+            };
+
+            await this.context.Applicationmediafiles.AddAsync(delarewarecity);
+            await this.context.SaveChangesAsync();
+
         }
 
         private void Updatedconnectionstring(string connectionstring)

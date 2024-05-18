@@ -111,7 +111,7 @@ namespace Mihcelle.Hwavmvid.Modules.Htmleditor
                 string htmlstring_2 = $"<div class=\"row\">\n" +
 
                                             $"<div class=\"col-sm-3\">\n" +
-                                                $"\t<img src=\"/medialibrary/usaflag.png\" title=\"mihcellehwavmvid\" alt=\"whenever mihcellehwavmvid\" class=\"img-fluid\" />\n" +
+                                                $"\t<img src=\"/medialibrary/delaware_city.png\" title=\"mihcellehwavmvid\" alt=\"whenever mihcellehwavmvid\" class=\"img-fluid\" />\n" +
                                             $"</div>\n" +
 
                                             $"<div class=\"col-sm-9\">\n" +
