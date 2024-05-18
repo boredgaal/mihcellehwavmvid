@@ -12,7 +12,7 @@
 <AuthorizeView Roles="@Mihcelle.Hwavmvid.Shared.Constants.Authentication.Hostrole">
     <Authorized>
 
-        @if (this.editor != null && !string.IsNullOrEmpty(this.bytestring))
+        @if (this.editor != null && !string.IsNullOrEmpty(this.bytestring) && !string.IsNullOrEmpty(this.binarystring))
         {
             <div>
 
@@ -42,6 +42,10 @@
                                 <button class="nav-link" id="@this.asscciitabid" data-bs-toggle="tab" data-bs-target="#@this.asscciitabcontrolid" type="button" role="tab" aria-controls="@this.asscciitabcontrolid" aria-selected="false">assccii</button>
                             </li>
 
+                            <li class="nav-item" role="@htmleditortabsnavigationid">
+                                <button class="nav-link" id="@this.bitstabid" data-bs-toggle="tab" data-bs-target="#@this.bitstabcontrolid" type="button" role="tab" aria-controls="@this.bitstabcontrolid" aria-selected="false">bits</button>
+                            </li>
+
                         </ul>
 
                         <div class="tab-content">
@@ -69,6 +73,20 @@
                                     </div>
 
                                     <textarea @bind="this.bytestring" rows="14" cols="410" class="w-100" onclick="border border-dark"></textarea>
+
+                                </div>
+
+                            </div>
+
+                            <div class="tab-pane" id="@this.bitstabcontrolid" role="tabpanel" aria-labelledby="@this.bitstabid">
+
+                                <div class="p-2 lead">
+
+                                    <div>
+                                        <strong><small>Edit html in binary data</small></strong>
+                                    </div>
+
+                                    <textarea @bind="this.binarystring" rows="14" cols="410" class="w-100" onclick="border border-dark"></textarea>
 
                                 </div>
 
@@ -120,20 +138,25 @@
     public string _htmleditormodalelementid { get; set; } = Guid.NewGuid().ToString();
     public Applicationhtmleditor? editor { get; set; }
     public string? bytestring { get; set; }
+    public string? binarystring { get; set; }
 
     public string htmleditortabsnavigationid { get; set; }
     public string htmltabid { get; set; }
     public string asscciitabid { get; set; }
+    public string bitstabid { get; set; }
     public string htmltabcontrolid { get; set; }
     public string asscciitabcontrolid { get; set; }
+    public string bitstabcontrolid { get; set; }
 
     protected override void OnInitialized()
     {
         this.htmleditortabsnavigationid = string.Concat("htmleditor-", Guid.NewGuid().ToString()).Replace("_", " - ");
         this.htmltabid = string.Concat("htmleditor-", Guid.NewGuid().ToString()).Replace("_", " - ");
         this.asscciitabid = string.Concat("htmleditor-", Guid.NewGuid().ToString()).Replace("_", " - ");
+        this.bitstabid = string.Concat("htmleditor-", Guid.NewGuid().ToString()).Replace("_", " - ");
         this.htmltabcontrolid = string.Concat("htmleditor-", Guid.NewGuid().ToString()).Replace("_", " - ");
         this.asscciitabcontrolid = string.Concat("htmleditor-", Guid.NewGuid().ToString()).Replace("_", " - ");
+        this.bitstabcontrolid = string.Concat("htmleditor-", Guid.NewGuid().ToString()).Replace("_", " - ");
 
         base.OnInitialized();
     }
@@ -156,7 +179,7 @@
                 this.editor = await client.GetFromJsonAsync<Applicationhtmleditor?>(string.Concat("api/htmleditor/", this.Moduleparams.Preferences.ModuleId));
 
 
-                // asscii things || 10_backslash || 60_n || 1060_\n || 1088_\t || assccii chars &#010; &#nbsp;
+                // asscii byte format things || 10_backslash || 60_n || 1060_\n || 1088_\t || assccii chars &#010; &#nbsp;
                 string tempbytestream = string.Empty;
                 for (var y = 0; y < this.editor?.Htmlstring.Count(); y++)
                 {
@@ -168,6 +191,17 @@
                 this.bytestring = tempbytestream;
                 this.bytestring = this.bytestring?.Replace("1060", "\n");
                 this.bytestring = this.bytestring?.Replace("8888", "\t");
+
+                // asscii sbyte format things || Convert.ToString(int val, int base);
+                string tempsbytestream = string.Empty;
+                for (var y = 0; y < this.editor?.Htmlstring.Count(); y++)
+                {
+                    char asscciiitem = this.editor.Htmlstring.Skip(y).FirstOrDefault();
+                    tempsbytestream += Convert.ToString(Convert.ToByte(asscciiitem), 2);
+                    tempsbytestream += "\\";
+                }
+
+                this.binarystring = tempsbytestream;
             }
             catch (Exception exception)
             {
