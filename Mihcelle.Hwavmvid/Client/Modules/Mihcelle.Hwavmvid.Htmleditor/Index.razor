@@ -118,11 +118,58 @@
 
             <div class="position-relative py-2" style="min-height: 140px;">
 
-                <button @onclick="async() => await Opencontextmodule()" @onclick:stopPropagation=true type="button" class="btn btn-sm btn-link px-2 py-4 rounded-0" style="position: absolute; bottom: 4px; right: 4px;">
+                <button @onclick="async() => await this.Opencontextmodule()" @onclick:stopPropagation=true type="button" class="btn btn-sm btn-link px-2 py-4 rounded-0" style="position: absolute; bottom: 4px; right: 4px;">
                     <small class="py-2">Edit html</small>
                 </button>
 
-                <div>@((MarkupString)this.editor.Htmlstring)</div>
+                <div @ondblclick="async() => await this.Opencontextlightbox()">@((MarkupString) this.editor.Htmlstring)</div>
+
+            </div>
+
+            <div>
+
+                <Modalcomponent ElementId="@_htmleditorlightboxelementid">
+
+                    <Modalheader>
+
+                        <div class="bg-dark text-light text-center px-2 py-2 d-none">
+
+                            <div class="lead py-2">
+                                Htmleditorlightbox
+                            </div>
+
+                        </div>
+
+                    </Modalheader>
+
+                    <Modalbody>
+
+                        <div>
+
+                            @if (!string.IsNullOrEmpty(lightboximg))
+                            {
+
+                                <img src="@lightboximg" title="double click for lightbox" alt="@lightboximg" />
+
+                            }
+
+                        </div>
+
+                    </Modalbody>
+
+                    <Modalfooter>
+
+                        <div class="float-end">
+
+                            <button @onclick="(() => this.modalservice.HideModal(this._htmleditorlightboxelementid))" type="button" class="btn btn-sm btn-link">
+                                Close editor
+                            </button>
+
+                        </div>
+
+                    </Modalfooter>
+
+                </Modalcomponent>
 
             </div>
         }
@@ -135,7 +182,9 @@
 
     [Parameter] public Moduleservice<Modulepreferences> Moduleparams { get; set; }
 
-    public string _htmleditormodalelementid { get; set; } = Guid.NewGuid().ToString();
+    public string _htmleditormodalelementid { get; set; } = string.Concat("htmleditor-", Guid.NewGuid().ToString()).Replace("_", " - ");
+    public string _htmleditorlightboxelementid { get; set; } = string.Concat("htmleditor-", Guid.NewGuid().ToString()).Replace("_", " - ");
+
     public Applicationhtmleditor? editor { get; set; }
     public string? bytestring { get; set; }
     public string? binarystring { get; set; }
@@ -147,6 +196,8 @@
     public string htmltabcontrolid { get; set; }
     public string asscciitabcontrolid { get; set; }
     public string bitstabcontrolid { get; set; }
+
+    public string lightboximg { get; set; } = string.Empty;
 
     protected override void OnInitialized()
     {
@@ -163,6 +214,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
+
         if (this.editor == null && !string.IsNullOrEmpty(this.Moduleparams.Preferences.ModuleId))
         {
             try
@@ -230,6 +282,42 @@
     {
 
         await this.modalservice.ShowModal(this._htmleditormodalelementid);
+
+        await InvokeAsync(() =>
+        {
+            this.StateHasChanged();
+        });
+    }
+
+    public async Task Opencontextlightbox()
+    {
+
+
+        if (this.editor != null && !string.IsNullOrEmpty(this.editor.Htmlstring))
+        {
+
+            await this.modalservice.ShowModal(this._htmleditorlightboxelementid);            
+            string tempstring = this.editor.Htmlstring;
+            while (true)
+            {
+                try
+                {
+
+                    tempstring = string.Concat(tempstring.SkipWhile(item => item != '<').Select(item => item));
+                    if (!string.IsNullOrEmpty(tempstring) && tempstring.StartsWith("<img"))
+                    {
+                        IEnumerable<char> screenedchars = tempstring.SkipWhile(item => item != '"').Skip(1).TakeWhile(item => item != '"');
+                        this.lightboximg = string.Concat(screenedchars);
+                        break;
+                    } else { tempstring = tempstring.Remove(0, 1); }
+                }
+                catch (Exception exception)
+                {
+                    // no images found inside html for lightbox
+                    break;
+                }
+            }
+        }
 
         await InvokeAsync(() =>
         {

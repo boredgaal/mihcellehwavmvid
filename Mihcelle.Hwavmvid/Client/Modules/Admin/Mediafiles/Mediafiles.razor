@@ -8,7 +8,7 @@
 @using Mihcelle.Hwavmvid.Client.Modules
 @using Mihcelle.Hwavmvid.Fileupload
 @using Mihcelle.Hwavmvid.Pager
-@using Hwavmvid.Alerts
+@using Hwavmvid.Notifications
 
 @inject Applicationprovider applicationprovider
 @inject Pagerservice<Applicationmediafile> pagerservice
@@ -45,7 +45,7 @@
                     <PagerComponent ApiQueryId="@this.applicationprovider?._contextsite?.Id" HubConnectionId="@string.Empty" ElementId="Mihcellehwavmvidmedialibrary" GetItemsApiUrl="@getItemsApiUrl" ContextPageItems="@this.mediaitems" Context="contextitem" ItemsPerPage="12" TItemGeneric="@Applicationmediafile" Class="row align-items-center bg-transparent" Scrolling="@false">
                         <PagerItem>
 
-                            <div class="col-lg-2" @onclick="() => copytoclipboard(contextitem)">
+                            <div class="col-lg-2" @ondblclick="async () => await this.copytoclipboard(contextitem)">
 
                                 <img class="img-fluid" src="@(string.Concat(this.navigationmanager?.BaseUri, "/medialibrary/", contextitem.Filename))" />
 
@@ -72,7 +72,7 @@
     [Parameter] public Moduleservice<Modulepreferences> Moduleparams { get; set; }
 
     [Inject] public IJSRuntime jsruntime { get; set; }
-    [Inject] public AlertsService alertsservice { get; set; }
+    [Inject] public NotificationsService notificationservice { get; set; }
 
     public string Mediafiledropzoneelementid { get; set; } = "mediafile_dropzone_element_id";
     public string Mediafileinputfieldid { get; set; } = "mediafile_input_field_id";
@@ -83,7 +83,10 @@
     {
         var url = this.navigationmanager.BaseUri + "/medialibrary/" + item.Filename;
         await this.jsruntime.InvokeVoidAsync("jsfunctions.copytoclipboard", url);
-        this.alertsservice.NewAlert("copied img url to clipboard: \n" + url);
+
+        var notificationitem = new NotificationItem() { Id = Guid.NewGuid().ToString(), Title = "Image clipboard", Content = "copied img url to clipboard: \n" + url, Type = NotificationType.Info  };
+        this.notificationservice.AddNotification(notificationitem);
+        await this.InvokeAsync(() => this.StateHasChanged());
     }
 
     protected override async Task OnInitializedAsync()

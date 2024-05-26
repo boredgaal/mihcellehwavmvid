@@ -17,6 +17,7 @@ using Mihcelle.Hwavmvid.Fileupload;
 using Mihcelle.Hwavmvid.Pager;
 using Mihcelle.Hwavmvid;
 using Mihcelle.Hwavmvid.Alerts;
+using Mihcelle.Hwavmvid.Notifications;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -50,6 +51,8 @@ builder.Services.AddScoped<Pagerservice<Applicationtask>, Pagerservice<Applicati
 builder.Services.AddScoped<Pagerservice<Applicationmediafile>, Pagerservice<Applicationmediafile>>();
 builder.Services.AddScoped<Applicationmodulesettingsservice, Applicationmodulesettingsservice>();
 builder.Services.AddScoped<AlertsService, AlertsService>();
+builder.Services.AddScoped<NotificationsService, NotificationsService>();
+
 
 try
 {

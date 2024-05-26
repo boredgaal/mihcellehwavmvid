@@ -13,7 +13,6 @@ using Mihcelle.Hwavmvid.Devices;
 using Mihcelle.Hwavmvid.Download;
 using Mihcelle.Hwavmvid.Jsapigeolocation;
 using Mihcelle.Hwavmvid.Jsapinotifications;
-using Mihcelle.Hwavmvid.Notifications;
 using Mihcelle.Hwavmvid.Video;
 using Mihcelle.Hwavmvid.VideoPlayer;
 using Mihcelle.Hwavmvid.Fileupload;
@@ -47,7 +46,6 @@ namespace Mihcelle.Hwavmvid.Modules.ChatHubs
                 services.AddScoped<JsapinotificationService, JsapinotificationService>();
                 services.AddScoped<VideoService, VideoService>();
                 services.AddScoped<VideoPlayerService, VideoPlayerService>();
-                services.AddScoped<NotificationsService,  NotificationsService>();
 
                 services.AddScoped<Mihcelle.Hwavmvid.Pager.Pagerservice<ChatHubRoom>, Mihcelle.Hwavmvid.Pager.Pagerservice<ChatHubRoom>>();
                 services.AddScoped<Mihcelle.Hwavmvid.Pager.Pagerservice<ChatHubUser>, Mihcelle.Hwavmvid.Pager.Pagerservice<ChatHubUser>>();
