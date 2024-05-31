@@ -432,8 +432,8 @@ namespace Mihcelle.Hwavmvid.Modules.ChatHubs
             migrationbuilder.DropColumn("ChatHubConnection", "ChatHubConnection");
             migrationbuilder.DropColumn("ChatHubMessage", "ChatHubMessage");
             migrationbuilder.DropColumn("ChatHubRoomChatHubUser", "ChatHubRoomChatHubUser");
-            migrationbuilder.DropColumn("ChatHubRoom", "ChatHubRoom");
             migrationbuilder.DropColumn("ChatHubUser", "ChatHubUser");
+            migrationbuilder.DropColumn("ChatHubRoom", "ChatHubRoom");
 
         }
     }

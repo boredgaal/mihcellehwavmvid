@@ -85,23 +85,25 @@ namespace Mihcelle.Hwavmvid.Modules.Htmleditor
                 string htmlstring_1 = $"<div class=\"row\">\n" +
 
                                             $"<div class=\"col-sm-3\">\n" +
-                                                $"\t<img src=\"/medialibrary/west_virginia.png\" title=\"mihcellehwavmvid\" alt=\"whenever mihcellehwavmvid\" class=\"img-fluid\" />\n" +
+                                                $"\t<a href=\"/medialibrary/west_virginia.png\" onclick=\"jsfunctions.bslb(this,'xl');return false;\">\n" +
+                                                $"\t<img src=\"/medialibrary/west_virginia.png\" title=\"mihcelle\" alt=\"whenevar\" class=\"img-fluid\" />\n" +
+                                                $"\t</a>\n" +
                                             $"</div>\n" +
 
                                             $"<div class=\"col-sm-9\">\n" +
-                                                $"\t<h1>Developan Perequisites</ h1>\n" +
+                                                $"\t<h1>Developan preparations</ h1>\n" +
                                                 $"\t<hr />\n" +
                                                 $"\t<table class=\"table table-sm\" style=\"font-size: 14px;\">\n" +
                                                     $"\t<thead></thead>\n" +
                                                     $"\t<tbody>\n" +
-                                                        $"<tr><td>asp .net core 7.0.2 sdk & hosting bundle 7.0.2</td></tr>\n" +
-                                                        $"<tr><td>install latest vs & mssql & smss</td></tr>\n" +
+                                                        $"<tr><td>asp .netcore 7.0.2 sdk & hosting bundle</td></tr>\n" +
+                                                        $"<tr><td>latest vs & mssql & smss</td></tr>\n" +
                                                         $"<tr><td>iis [all] features</td></tr>\n" +
-                                                        $"<tr><td>iis web deploy download</td></tr>\n" +
+                                                        $"<tr><td>iis web deploy module</td></tr>\n" +
                                                         $"<tr><td>iis url rewrite module</td></tr>\n" +
-                                                        $"<tr><td>edit permissions app pool id & iis_iusrs & network service</td></tr>\n" +
-                                                        $"<tr><td>update hosts config file for desktop .cmd url and update /server/properties/launhcsettings.json</td></tr>\n" +
-                                                        $"<tr><td></td></tr>\n" +
+                                                        $"<tr><td>permissions app pool id & iis_iusrs & network service</td></tr>\n" +
+                                                        $"<tr><td>update hosts.config for .cmd execut.</td></tr>\n" +
+                                                        $"<tr><td>update server/client launhcsettings.json</td></tr>\n" +
                                                     $"\t</tbody>\n" +
                                                 $"\t</table>\n" +
                                             $"</div>\n" +
@@ -111,7 +113,9 @@ namespace Mihcelle.Hwavmvid.Modules.Htmleditor
                 string htmlstring_2 = $"<div class=\"row\">\n" +
 
                                             $"<div class=\"col-sm-3\">\n" +
-                                                $"\t<img src=\"/medialibrary/delaware_city.png\" title=\"mihcellehwavmvid\" alt=\"whenever mihcellehwavmvid\" class=\"img-fluid\" />\n" +
+                                                $"\t<a href=\"/medialibrary/delaware_city.png\" onclick=\"jsfunctions.bslb(this,'xl');return false;\">\n" +
+                                                $"\t<img src=\"/medialibrary/delaware_city.png\" title=\"mihcelle\" alt=\"whenevar\" class=\"img-fluid\" />\n" +
+                                                $"\t</a>\n" +
                                             $"</div>\n" +
 
                                             $"<div class=\"col-sm-9\">\n" +

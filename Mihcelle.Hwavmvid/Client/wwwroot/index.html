@@ -60,15 +60,30 @@
 
     <script src="jquery-3.63-slim/jquery.3.6.3.slim.js"></script>
     <script src="bootstrap-5.0.2-dist/js/bootstrap.min.js"></script>
+    <script src="bootstrap-5.0.0-lightbox/bootstraplightbox.js"></script>
 
     <script type="text/javascript">
 
         window.jsfunctions = {
 
+            // onclick="jsfunctions.bslb(this,'fullscreen'); return false;"
+            bslb: function (elementa, fullscreen) {
+
+                const options = {
+
+                    keyboard: true,
+                    size: fullscreen
+                };
+
+                const lightbox = new Lightbox(elementa, options);
+                lightbox.show();
+            },
+
+            // onclick="jsfunctions.copytoclipboard(this);"
             copytoclipboard: function (item) {
 
                 navigator.clipboard.writeText(item)
-            }
+            },
         }
 
     </script>
