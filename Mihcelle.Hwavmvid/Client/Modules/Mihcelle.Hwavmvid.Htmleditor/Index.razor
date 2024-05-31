@@ -9,7 +9,8 @@
 @inject NavigationManager navigationmanager
 @inject Modalservice modalservice
 
-<AuthorizeView Roles="@Mihcelle.Hwavmvid.Shared.Constants.Authentication.Hostrole">
+<AuthorizeView Roles="@string.Concat(Mihcelle.Hwavmvid.Shared.Constants.Authentication.Administratorrole, ",", @Mihcelle.Hwavmvid.Shared.Constants.Authentication.Hostrole)">
+
     <Authorized>
 
         @if (this.editor != null && !string.IsNullOrEmpty(this.bytestring) && !string.IsNullOrEmpty(this.binarystring))
@@ -116,66 +117,88 @@
 
             </div>
 
-            <div class="position-relative py-2" style="min-height: 140px;">
-
-                <button @onclick="async() => await this.Opencontextmodule()" @onclick:stopPropagation=true type="button" class="btn btn-sm btn-link px-2 py-4 rounded-0" style="position: absolute; bottom: 4px; right: 4px;">
-                    <small class="py-2">Edit html</small>
-                </button>
-
-                <div @ondblclick="async() => await this.Opencontextlightbox()">@((MarkupString) this.editor.Htmlstring)</div>
-
-            </div>
-
-            <div>
-
-                <Modalcomponent ElementId="@_htmleditorlightboxelementid">
-
-                    <Modalheader>
-
-                        <div class="bg-dark text-light text-center px-2 py-2 d-none">
-
-                            <div class="lead py-2">
-                                Htmleditorlightbox
-                            </div>
-
-                        </div>
-
-                    </Modalheader>
-
-                    <Modalbody>
-
-                        <div>
-
-                            @if (!string.IsNullOrEmpty(lightboximg))
-                            {
-
-                                <img src="@lightboximg" title="double click for lightbox" alt="@lightboximg" />
-
-                            }
-
-                        </div>
-
-                    </Modalbody>
-
-                    <Modalfooter>
-
-                        <div class="float-end">
-
-                            <button @onclick="(() => this.modalservice.HideModal(this._htmleditorlightboxelementid))" type="button" class="btn btn-sm btn-link">
-                                Close editor
-                            </button>
-
-                        </div>
-
-                    </Modalfooter>
-
-                </Modalcomponent>
-
-            </div>
         }
 
     </Authorized>
+
 </AuthorizeView>
+
+
+@if (this.editor != null)
+{
+
+    <div>
+
+        <div class="position-relative py-2" style="min-height: 140px;">
+
+
+            <AuthorizeView Roles="@string.Concat(Mihcelle.Hwavmvid.Shared.Constants.Authentication.Administratorrole, ",", @Mihcelle.Hwavmvid.Shared.Constants.Authentication.Hostrole)">
+
+                <Authorized>
+
+                    <button @onclick="async() => await this.Opencontextmodule()" @onclick:stopPropagation=true type="button" class="btn btn-sm btn-link px-2 py-4 rounded-0" style="position: absolute; bottom: 4px; right: 4px;">
+                        <small class="py-2">Edit html</small>
+                    </button>
+
+                </Authorized>
+
+            </AuthorizeView>
+
+
+            <div @ondblclick="async() => await this.Opencontextlightbox()">@((MarkupString)this.editor.Htmlstring)</div>
+
+        </div>
+
+        <div>
+
+            <Modalcomponent ElementId="@_htmleditorlightboxelementid">
+
+                <Modalheader>
+
+                    <div class="bg-dark text-light text-center px-2 py-2 d-none">
+
+                        <div class="lead py-2">
+                            Htmleditorlightbox
+                        </div>
+
+                    </div>
+
+                </Modalheader>
+
+                <Modalbody>
+
+                    <div>
+
+                        @if (!string.IsNullOrEmpty(lightboximg))
+                        {
+
+                            <img src="@lightboximg" title="double click for lightbox" alt="@lightboximg" />
+
+                    }
+
+                </div>
+
+            </Modalbody>
+
+            <Modalfooter>
+
+                <div class="float-end">
+
+                    <button @onclick="(() => this.modalservice.HideModal(this._htmleditorlightboxelementid))" type="button" class="btn btn-sm btn-link">
+                        Close editor
+                    </button>
+
+                </div>
+
+            </Modalfooter>
+
+        </Modalcomponent>
+
+        </div>
+
+    </div>
+
+}
 
 
 @code {

@@ -30,7 +30,7 @@ namespace Mihcelle.Hwavmvid.Modules.Htmleditor
                  {
                      Id = dbtable.Column<string>(type: "nvarchar(410)", nullable: false, unicode: null),
                      Moduleid = dbtable.Column<string>(type: "nvarchar(410)", nullable: false, unicode: null),
-                     Htmlstring = dbtable.Column<string>(type: "nvarchar(841)", nullable: false, unicode: null),
+                     Htmlstring = dbtable.Column<string>(type: "nvarchar(max)", nullable: false, unicode: null),
                      Createdon = dbtable.Column<DateTime>(type: "date", nullable: false, unicode: null),
                  },
                  constraints: dbtable =>
