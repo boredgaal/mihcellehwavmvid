@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.VisualBasic;
 using Mihcelle.Hwavmvid.Server;
 using Mihcelle.Hwavmvid.Shared.Models;
 
@@ -13,11 +14,12 @@ namespace Mihcelle.Hwavmvid.Modules.Htmleditor
     {
 
         public DbSet<Applicationhtmleditor> Applicationhtmleditors { get; set; }
+        public IWebHostEnvironment iwebhostenvironment { get; set; }
         private const string frontpagename = "Mihcellehwavmvid corporatcc";
 
-        public Applicationdbcontext(DbContextOptions options) : base(options)
+        public Applicationdbcontext(DbContextOptions options, IWebHostEnvironment iwebhostenvironment) : base(options)
         {
-            
+            this.iwebhostenvironment = iwebhostenvironment;
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -148,6 +150,31 @@ namespace Mihcelle.Hwavmvid.Modules.Htmleditor
 
                 await this.Applicationhtmleditors.AddAsync(htmleditor_2);
                 await this.SaveChangesAsync();
+
+
+                // media gallery html upload to database
+                var htmlmodule_mediagallery = new Applicationmodule()
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Packageid = installedmodulepackage.Id,
+                    Containercolumnid = frontpagecontainercolumn.Id,
+                    Assemblytype = installedmodulepackage.Assemblytype,
+                    Settingstype = installedmodulepackage.Settingstype,
+                    Containercolumnposition = 0,
+                    Createdon = DateTime.Now,
+                };
+                await base.Applicationmodules.AddAsync(htmlmodule_mediagallery);
+                await base.SaveChangesAsync();
+                string? mediagalleryhtml = System.IO.File.ReadAllText(string.Concat(this.iwebhostenvironment.ContentRootPath, "\\Modules\\Mihcelle.Hwavmvid.Modules.Htmleditor\\", "mediagallery.html"));
+                var htmleditor_mediagallery = new Mihcelle.Hwavmvid.Modules.Htmleditor.Applicationhtmleditor()
+                {
+                    Moduleid = htmlmodule_mediagallery.Id,
+                    Htmlstring = mediagalleryhtml,
+                    Createdon = DateTime.Now,
+                };
+                await this.Applicationhtmleditors.AddAsync(htmleditor_mediagallery);
+                await this.SaveChangesAsync();
+
             }
 
         }

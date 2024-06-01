@@ -203,6 +203,31 @@ namespace Mihcelle.Hwavmvid.Server.Controllers
             await this.context.Applicationmediafiles.AddAsync(delarewarecity);
             await this.context.SaveChangesAsync();
 
+            string[] mediagallery = new string[] 
+            {
+                "giselle_bündchen.webp",
+                "michelle_huntzigar.webp",
+                "sophia_thomalla.webp",
+                "nypd_car.webp",
+            };
+
+            foreach (var item in mediagallery.ToList())
+            {
+                var mediafile = new Applicationmediafile()
+                {
+                    Siteid = site.Id,
+                    Filename = item,
+                    Fileextension = ".webp",
+                    Filesize = 0,
+                    Filewidth = 0,
+                    Fileheight = 0,
+                    Createdon = DateTime.Now,
+                };
+
+                await this.context.Applicationmediafiles.AddAsync(mediafile);
+                await this.context.SaveChangesAsync();
+            }
+
         }
 
         private void Updatedconnectionstring(string connectionstring)
